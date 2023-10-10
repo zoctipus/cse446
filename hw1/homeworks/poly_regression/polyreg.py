@@ -20,6 +20,7 @@ class PolynomialRegression:
         # Fill in with matrix with the correct shape
         self.weight: np.ndarray = None  # type: ignore
         # You can add additional fields
+        self.polymean: np.ndarray = None
         # raise NotImplementedError("Your Code Goes Here")
 
     @staticmethod
@@ -38,8 +39,12 @@ class PolynomialRegression:
                 Note that the returned matrix will not include the zero-th power.
 
         """
-        print("X value is:", X)
-        return np.hstack([X ** (i+1) for i in range(degree)])
+        # print("\n**** degree ****\n", degree, "\n******X value is:******\n", X)
+        if degree != 0:
+            result = np.hstack([X ** (i+1) for i in range(degree)])
+        else:
+            result = None
+        return result
 
     @problem.tag("hw1-A")
     def fit(self, X: np.ndarray, y: np.ndarray):
@@ -53,14 +58,22 @@ class PolynomialRegression:
         Note:
             You will need to apply polynomial expansion and data standardization first.
         """
+        # print("\n**** degree ****\n", self.degree)
         polyfeatures = self.polyfeatures(X, self.degree)
-        print("********polyfeature********\n")
-        print(polyfeatures)
-        normalized_polyfeatures = polyfeatures - np.mean(polyfeatures, axis=0)
-        normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
-        print("****************\n")
-        print(normalized_polyfeatures)
+        # print("\n********polyfeature********\n")
+        # print(polyfeatures)
+        if(self.degree != 0 or polyfeatures is not None):
+            self.polymean = np.mean(polyfeatures, axis=0)
+            normalized_polyfeatures = polyfeatures - self.polymean
+            normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
+        else:
+            normalized_polyfeatures = np.ones((len(X), 1))
+        # print("\n********normalized polyfeature********\n")
+        # print(normalized_polyfeatures)
+
         self.weight = np.linalg.inv(normalized_polyfeatures.T @ normalized_polyfeatures) @ normalized_polyfeatures.T @ y
+        # print("\n********self.weight ********\n")
+        # print(self.weight)
 
 
     @problem.tag("hw1-A")
@@ -75,8 +88,11 @@ class PolynomialRegression:
             np.ndarray: Array of shape (n, 1) with predictions.
         """
         polyfeatures = self.polyfeatures(X, self.degree)
-        normalized_polyfeatures = polyfeatures - np.mean(polyfeatures, axis=0)
-        normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
+        if polyfeatures is not None:
+            normalized_polyfeatures = polyfeatures - self.polymean
+            normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
+        else :
+            normalized_polyfeatures = np.ones((len(X), 1))
         return normalized_polyfeatures @ self.weight
 
 
@@ -91,7 +107,7 @@ def mean_squared_error(a: np.ndarray, b: np.ndarray) -> float:
     Returns:
         float: mean squared error between a and b.
     """
-    raise NotImplementedError("Your Code Goes Here")
+    return (1/float(len(a)))*np.sum((a - b)**2) 
 
 
 @problem.tag("hw1-A", start_line=5)
@@ -124,8 +140,12 @@ def learningCurve(
         - errorTrain[0:1] and errorTest[0:1] won't actually matter, since we start displaying the learning curve at n = 2 (or higher)
     """
     n = len(Xtrain)
-
     errorTrain = np.zeros(n)
     errorTest = np.zeros(n)
     # Fill in errorTrain and errorTest arrays
-    raise NotImplementedError("Your Code Goes Here")
+    for i in range(degree+1):
+        pr = PolynomialRegression(degree=i, reg_lambda=reg_lambda)
+        pr.fit(X=Xtrain, y=Ytrain)
+        errorTrain[i] = mean_squared_error(Ytrain, pr.predict(Xtrain))
+        errorTest[i] = mean_squared_error(Ytest, pr.predict(Xtest))
+    return errorTrain,errorTest
