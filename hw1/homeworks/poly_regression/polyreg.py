@@ -21,6 +21,7 @@ class PolynomialRegression:
         self.weight: np.ndarray = None  # type: ignore
         # You can add additional fields
         self.polymean: np.ndarray = None
+        self.polystd: np.ndarray = None
         # raise NotImplementedError("Your Code Goes Here")
 
     @staticmethod
@@ -64,14 +65,16 @@ class PolynomialRegression:
         # print(polyfeatures)
         if(self.degree != 0 or polyfeatures is not None):
             self.polymean = np.mean(polyfeatures, axis=0)
-            normalized_polyfeatures = polyfeatures - self.polymean
+            self.polystd = np.std(polyfeatures, axis=0)
+            normalized_polyfeatures = (polyfeatures - self.polymean) / self.polystd
             normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
         else:
             normalized_polyfeatures = np.ones((len(X), 1))
         # print("\n********normalized polyfeature********\n")
         # print(normalized_polyfeatures)
-
-        self.weight = np.linalg.inv(normalized_polyfeatures.T @ normalized_polyfeatures) @ normalized_polyfeatures.T @ y
+        reg_matrix = self.reg_lambda * np.eye(normalized_polyfeatures.shape[1])
+        reg_matrix[0, 0] = 0
+        self.weight = np.linalg.solve(normalized_polyfeatures.T @ normalized_polyfeatures + reg_matrix,  normalized_polyfeatures.T @ y)
         # print("\n********self.weight ********\n")
         # print(self.weight)
 
@@ -89,9 +92,9 @@ class PolynomialRegression:
         """
         polyfeatures = self.polyfeatures(X, self.degree)
         if polyfeatures is not None:
-            normalized_polyfeatures = polyfeatures - self.polymean
-            normalized_polyfeatures= np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
-        else :
+            normalized_polyfeatures = (polyfeatures - self.polymean) / self.polystd
+            normalized_polyfeatures = np.hstack([np.ones((len(normalized_polyfeatures), 1)), normalized_polyfeatures])
+        else:
             normalized_polyfeatures = np.ones((len(X), 1))
         return normalized_polyfeatures @ self.weight
 
@@ -107,7 +110,7 @@ def mean_squared_error(a: np.ndarray, b: np.ndarray) -> float:
     Returns:
         float: mean squared error between a and b.
     """
-    return (1/float(len(a)))*np.sum((a - b)**2) 
+    return np.mean((a - b)**2)
 
 
 @problem.tag("hw1-A", start_line=5)
@@ -139,13 +142,30 @@ def learningCurve(
             THIS DOES NOT APPLY TO errorTest.
         - errorTrain[0:1] and errorTest[0:1] won't actually matter, since we start displaying the learning curve at n = 2 (or higher)
     """
+    '''
+    The commented code shows how regularization affects the training as the complexity of function increases
+    '''
+    # n = len(Xtrain)
+    # errorTrain = np.zeros(n)
+    # errorTest = np.zeros(n)
+    # # Fill in errorTrain and errorTest arrays
+    # for i in range(degree+1):
+    #     pr = PolynomialRegression(degree=i, reg_lambda=reg_lambda)
+    #     pr.fit(X=Xtrain, y=Ytrain)
+    #     errorTrain[i] = mean_squared_error(Ytrain, pr.predict(Xtrain))
+    #     errorTest[i] = mean_squared_error(Ytest, pr.predict(Xtest))
+    # print(errorTrain, errorTest)
+    # return errorTrain,errorTest
+
     n = len(Xtrain)
     errorTrain = np.zeros(n)
     errorTest = np.zeros(n)
     # Fill in errorTrain and errorTest arrays
-    for i in range(degree+1):
-        pr = PolynomialRegression(degree=i, reg_lambda=reg_lambda)
-        pr.fit(X=Xtrain, y=Ytrain)
-        errorTrain[i] = mean_squared_error(Ytrain, pr.predict(Xtrain))
+    for i in range(2, n):
+        Xtrain_ = Xtrain[0:i+1]
+        Ytrain_ = Ytrain[0:i+1]
+        pr = PolynomialRegression(degree=degree, reg_lambda=reg_lambda)
+        pr.fit(X=Xtrain_, y=Ytrain_)
+        errorTrain[i] = mean_squared_error(Ytrain_, pr.predict(Xtrain_))
         errorTest[i] = mean_squared_error(Ytest, pr.predict(Xtest))
     return errorTrain,errorTest
