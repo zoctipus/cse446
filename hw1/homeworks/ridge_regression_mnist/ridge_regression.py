@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from utils import load_dataset, problem
 
 def preprocess(x:np.ndarray):
-   x_ = x * 2 -1
-   return np.hstack([np.ones((x.shape[0], 1)), x_])
+   x_ = (x - 0.5) * 2
+   return x_
 
 
 @problem.tag("hw1-A")
@@ -30,8 +30,7 @@ def train(x: np.ndarray, y: np.ndarray, _lambda: float) -> np.ndarray:
     """
 
     x_ = preprocess(x)
-    ridge = _lambda * np.eye(x.shape[1] + 1)
-    ridge[0, 0] = 0
+    ridge = _lambda * np.eye(x.shape[1])
     # print(ridge.shape)
     weight = np.linalg.solve(x_.T @ x_ + ridge, x_.T @ y)
     # print(weight.shape)
