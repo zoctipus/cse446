@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from utils import load_dataset, problem
 
 def preprocess(x:np.ndarray):
-   x_ = (x - 0.5) * 2
+   x_ = x
    return x_
 
 

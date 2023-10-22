@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "inv test",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "source /home/octipus/anaconda3/bin/activate && conda activate cse446 && inv test"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    "CONDA_EXE": "/home/octipus/anaconda3/condabin/conda",
+                    "CONDA_PREFIX": "/home/octipus/anaconda3/conda/bin/conda/envs/cse446"
+                }
+            }
+        }
+    ]
+}
