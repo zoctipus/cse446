@@ -25,25 +25,34 @@ def main():
     # Initialize weights and other parameters
     w = np.zeros(d,)
 
-    X = train_x.to_numpy()
-    y = train_y.to_numpy()
+    X = train_x
+    y = train_y
 
     #train
-    x_mean = np.mean(X, axis=0)
-    x_std = np.std(X, axis=0)
-    X_ = (X - x_mean) / x_std
+    # x_mean = np.mean(X, axis=0)
+    # x_std = np.std(X, axis=0)
+    # X_ = (X - x_mean) / x_std
+    X_ = X
     ws = np.empty((0, w.shape[0]))
     bs = np.empty((0, 1))
     _lambda = calc_lambda(X_, y)
     ws_zeros = []
     lams = []
     zero_percentage = 1
-    with open('/media/octipus/ad098048-2ec2-425c-b95b-4940e9cd3d83/446/hw2/homeworks/lasso/crime_data_progress.txt', 'w') as f:
-        f.write("Lambda, Zero_Percentage,FDR, TPR\n")  # Writing the headers
+    with open('/Users/zhengyuzhang/Documents/CSE/cse446/hw2/homeworks/lasso/crime_data_progress.txt', 'w') as f:
+        f.write("Lambda, Zero_Percentage\n")  # Writing the headers
 
-        while zero_percentage > 0.001:
+        while _lambda > 0.01:
             lams.append(_lambda)
-            w_, b_ = train(X_, y, _lambda)
+            # print(_lambda)
+            startw = None
+            startb = None
+            if(len(ws) != 0):
+                startw = ws[-1]
+                startb = bs[-1]
+            w_, b_ = train(X_, y, _lambda, start_weight= startw, start_bias=startb)
+            # if _lambda < 135:
+            #     exit(0)
             ws=np.vstack([ws, w_])
             bs=np.vstack([bs, b_])
 
@@ -51,6 +60,7 @@ def main():
             ws_zeros.append(zero_percentage)
 
             # Write the current _lambda and zero_percentage to file
+            print(_lambda, zero_percentage)
             f.write(f"{_lambda}, {zero_percentage}\n")
 
             # Update _lambda for next iteration

@@ -29,13 +29,14 @@ def step(
 
     # Compute gradient for weight
     gradient =  2 * (X.T @ (X @ weight + bias - y))
-    # Update weight
     w_ = weight - eta * gradient
-    w_ = np.where(
-    w_ > 2 * eta * _lambda, w_ - 2 * eta * (_lambda),
-    np.where(
-        w_ < -2 * eta * _lambda, w_ +  2 * eta * (_lambda), 0
-    ))
+    for i in range(len(w_)):
+        if w_[i] >  2 * eta * _lambda :
+            w_[i] = w_[i] - 2 * eta * (_lambda)
+        elif w_[i] <  -2 * eta * _lambda:
+            w_[i] = w_[i] + 2 * eta * (_lambda)
+        else:
+            w_[i] = 0
     # Compute gradient for bias
     gradient_b = 2 * np.sum(X @ weight + bias - y)
     # Update bias
@@ -70,7 +71,7 @@ def train(
     X: np.ndarray,
     y: np.ndarray,
     _lambda: float = 0.01,
-    eta: float = 0.0001,
+    eta: float = 0.000005,
     convergence_delta: float = 1e-4,
     start_weight: np.ndarray = None,
     start_bias: float = None
@@ -107,25 +108,20 @@ def train(
                     Training function that does not return a fully usable model is just weird.
                 - You will use bias in next problem.
     """
-    x_mean = np.mean(X, axis=0)
-    x_std = np.std(X, axis=0)
-    x_ = (X - x_mean) / x_std
     if start_weight is None:
         start_weight = np.zeros(X.shape[1])
         start_bias = 0
-    old_w: Optional[np.ndarray] = np.empty((0, start_weight.shape[0]))
-    old_b: Optional[np.ndarray] = np.array([])
-    loss_val = 999
-    old_b = np.append(old_b, [start_bias])
-    old_w = np.vstack([old_w, start_weight])
+    old_w: Optional[np.ndarray] = None
+    old_b: Optional[np.ndarray] = None
+    current_b = np.copy(start_bias)
+    current_w = np.copy(start_weight)
     while True:
-        w_, b_ = step(X, y ,weight=old_w[-1], bias=old_b[-1], _lambda = _lambda, eta = eta)
-        old_b = np.append(old_b, [b_], axis=0)
-        old_w = np.append(old_w, [w_], axis=0)
-        loss_val = loss(X, y, w_, b_, _lambda)
-        if convergence_criterion(w_, old_w[-2], b_, old_b[-2], convergence_delta):
+        old_b = np.copy(current_b)
+        old_w = np.copy(current_w)
+        current_w, current_b = step(X, y ,weight=current_w, bias=current_b, _lambda = _lambda, eta = eta)
+        if convergence_criterion(current_w, old_w, current_b, old_b, convergence_delta):
             break
-    return old_w[-1], old_b[-1]
+    return current_w, current_b
 
 
 
