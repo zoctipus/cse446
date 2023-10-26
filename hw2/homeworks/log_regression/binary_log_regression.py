@@ -43,7 +43,7 @@ class BinaryLogReg:
         # Fill in with matrix with the correct shape
         self.weight: np.ndarray = None  # type: ignore
         self.bias: float = 0.0
-        raise NotImplementedError("Your Code Goes Here")
+        # raise NotImplementedError("Your Code Goes Here")
 
     @problem.tag("hw2-A")
     def mu(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -62,7 +62,8 @@ class BinaryLogReg:
         Returns:
             np.ndarray: An `(n, )` vector containing mu_i for i^th element.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        return 1 / (1 + np.exp(-y * (self.bias + X @ self.weight)))
+
 
     @problem.tag("hw2-A")
     def loss(self, X: np.ndarray, y: np.ndarray) -> float:
@@ -78,7 +79,15 @@ class BinaryLogReg:
         Returns:
             float: Loss given X, y, self.weight, self.bias and self._lambda
         """
-        raise NotImplementedError("Your Code Goes Here")
+        '''
+        Octi Edit Begins
+        '''
+        # raise NotImplementedError("Your Code Goes Here")
+        loss = 1/y.shape[0]  * np.sum(np.log(1 + np.exp(-y * (self.bias + X @ self.weight))))  + self._lambda * np.sum(self.weight ** 2)
+        return loss
+        '''
+        Octi Edit Ends
+        '''
 
     @problem.tag("hw2-A")
     def gradient_J_weight(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -93,7 +102,9 @@ class BinaryLogReg:
         Returns:
             np.ndarray: An `(d, )` vector which represents gradient of loss J with respect to self.weight.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        gradient_term = 1/y.shape[0] * np.sum(- y.reshape(-1, 1) * X *(1 - self.mu(X, y)).reshape(-1, 1), axis=0)
+        regularization_term = self._lambda * 2 * self.weight
+        return gradient_term + regularization_term
 
     @problem.tag("hw2-A")
     def gradient_J_bias(self, X: np.ndarray, y: np.ndarray) -> float:
@@ -109,7 +120,11 @@ class BinaryLogReg:
         Returns:
             float: A number that represents gradient of loss J with respect to self.bias.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        gradient_term_b = 1/y.shape[0] * np.sum(-y * (1 - self.mu(X, y)))
+        return gradient_term_b
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
 
     @problem.tag("hw2-A")
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -123,7 +138,9 @@ class BinaryLogReg:
         Returns:
             np.ndarray: An `(n, )` array of either -1s or 1s representing guess for each observation.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        probabilities = self.sigmoid(X @ self.weight + self.bias)
+        predictions = np.where(probabilities >= 0.5, 1, -1)
+        return predictions
 
     @problem.tag("hw2-A")
     def misclassification_error(self, X: np.ndarray, y: np.ndarray) -> float:
@@ -140,7 +157,9 @@ class BinaryLogReg:
         Returns:
             float: percentage of times prediction did not match target, given an observation (i.e. misclassification error).
         """
-        raise NotImplementedError("Your Code Goes Here")
+        y_hat = self.predict(X)
+        misclassification_error_rate = np.sum(y_hat != y) / y.shape[0]
+        return misclassification_error_rate
 
     @problem.tag("hw2-A")
     def step(self, X: np.ndarray, y: np.ndarray, learning_rate: float = 1e-4):
@@ -156,7 +175,12 @@ class BinaryLogReg:
             learning_rate (float, optional): Learning rate of SGD/GD algorithm.
                 Defaults to 1e-4.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        w_ = self.gradient_J_weight(X, y)
+        b_ = self.gradient_J_bias(X, y)
+
+        self.weight -= learning_rate * w_
+        self.bias -= learning_rate * b_
+
 
     @problem.tag("hw2-A", start_line=7)
     def train(
@@ -214,7 +238,9 @@ class BinaryLogReg:
             "test_losses": [],
             "test_errors": [],
         }
-        raise NotImplementedError("Your Code Goes Here")
+        self.step(X_train, y_train)
+        train_loss = self.loss(X_train, y_train)
+        
 
 
 if __name__ == "__main__":
