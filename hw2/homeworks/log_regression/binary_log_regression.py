@@ -123,8 +123,6 @@ class BinaryLogReg:
         gradient_term_b = 1/y.shape[0] * np.sum(-y * (1 - self.mu(X, y)))
         return gradient_term_b
 
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
 
     @problem.tag("hw2-A")
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -138,7 +136,7 @@ class BinaryLogReg:
         Returns:
             np.ndarray: An `(n, )` array of either -1s or 1s representing guess for each observation.
         """
-        probabilities = self.sigmoid(X @ self.weight + self.bias)
+        probabilities = sigmoid(X @ self.weight + self.bias)
         predictions = np.where(probabilities >= 0.5, 1, -1)
         return predictions
 
@@ -189,7 +187,7 @@ class BinaryLogReg:
         y_train: np.ndarray,
         X_test: np.ndarray,
         y_test: np.ndarray,
-        learning_rate: float = 1e-2,
+        learning_rate: float = 1e-3,
         epochs: int = 30,
         batch_size: int = 100,
     ) -> Dict[str, List[float]]:
@@ -238,28 +236,124 @@ class BinaryLogReg:
             "test_losses": [],
             "test_errors": [],
         }
-        self.step(X_train, y_train)
-        train_loss = self.loss(X_train, y_train)
-        
+
+        self.weight = np.zeros((X_train.shape[1]))
+        self.bias = 0
+
+        for epoch in range(epochs):
+            # Shuffle the data
+            indices = RNG.permutation(len(X_train))
+            X_train_shuffled = X_train[indices]
+            y_train_shuffled = y_train[indices]
+
+            # Iterate through mini-batches
+            for i in range(num_batches):
+                start_idx = i * batch_size
+                end_idx = min((i + 1) * batch_size, len(X_train))
+                X_batch = X_train_shuffled[start_idx:end_idx]
+                y_batch = y_train_shuffled[start_idx:end_idx]
+                self.step(X_batch, y_batch, learning_rate)
+            result["train_losses"].append(self.loss(X_batch, y_batch))
+            result["train_errors"].append(self.misclassification_error(X_batch, y_batch))
+            result["test_losses"].append(self.loss(X_test, y_test))
+            result["test_errors"].append(self.misclassification_error(X_test, y_test))
+            print(epoch)
+        return result
+
+
+def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+
+
+def compare_learning_rate():
+    learning_rates = [5e-1, 1e-1, 5e-2]
+    (x_train, y_train), (x_test, y_test) = load_2_7_mnist()
+
+    max_loss = float('-inf')
+    min_loss = float('inf')
+    max_error = float('-inf')
+    min_error = float('inf')
+
+    # Create the plots
+    fig, axes = plt.subplots(2, len(learning_rates), figsize=(15, 10))
+
+    for i, lr in enumerate(learning_rates):
+        model = BinaryLogReg()
+        history = model.train(x_train, y_train, x_test, y_test, learning_rate=lr)
+        max_loss = max(max_loss, max(history["train_losses"]), max(history["test_losses"]))
+        min_loss = min(min_loss, min(history["train_losses"]), min(history["test_losses"]))
+        max_error = max(max_error, max(history["train_errors"]), max(history["test_errors"]))
+        min_error = min(min_error, min(history["train_errors"]), min(history["test_errors"]))
+
+        # Plot loss
+        axes[0, i].plot(history["train_losses"], label="Train")
+        axes[0, i].plot(history["test_losses"], label="Test")
+        axes[0, i].set_title(f"Loss with Learning Rate {lr}")
+        axes[0, i].set_xlabel("Epochs")
+        axes[0, i].set_ylabel("Loss")
+        axes[0, i].legend()
+        axes[0, i].set_ylim([min_loss, max_loss])
+
+        # Plot error
+        axes[1, i].plot(history["train_errors"], label="Train")
+        axes[1, i].plot(history["test_errors"], label="Test")
+        axes[1, i].set_title(f"Error with Learning Rate {lr}")
+        axes[1, i].set_xlabel("Epochs")
+        axes[1, i].set_ylabel("Misclassification Error")
+        axes[1, i].legend()
+        axes[1, i].set_ylim([min_error, max_error])
+
+    plt.tight_layout()
+    plt.show()
+
+import matplotlib.gridspec as gridspec
+def plot_images_and_boundary():
+    learning_rate = 5e-1
+    (x_train, y_train), (x_test, y_test) = load_2_7_mnist()
+
+    model = BinaryLogReg()
+    history = model.train(x_train, y_train, x_test, y_test, learning_rate)
+
+    X, w, b = (x_test, model.weight, model.bias)
+    scores = sigmoid(np.dot(X, w) + b)
+
+    # Filter scores less than 0.1
+    valid_indices = np.where(scores >= 0.1)
+    scores = scores[valid_indices]
+    X = X[valid_indices]
+
+    indices = np.linspace(0, len(X) - 1, 100).astype(int)
+    sampled_images = X[indices]
+    sampled_scores = scores[indices]
+
+    sort_indices = np.argsort(sampled_scores)
+    sampled_images = sampled_images[sort_indices]
+    sampled_scores = sampled_scores[sort_indices]
+
+    # Create a mapping of score to images, to manage the vertical stacking
+    score_image_map = {}
+    for img, score in zip(sampled_images, sampled_scores):
+        rounded_score = round(score, 2)
+        score_image_map.setdefault(rounded_score, []).append(img)
+
+    # Initialize plot with GridSpec
+    fig = plt.figure(figsize=(100, 6))
+    gs = gridspec.GridSpec(1, len(sampled_scores))
+
+    col_idx = 0
+    for score, imgs in score_image_map.items():
+        # Only the first image for each score will be shown
+        img = imgs[0]
+        ax = fig.add_subplot(gs[0, col_idx])
+        ax.imshow(img.reshape(28, 28), cmap='gray')
+        ax.set_title(f'{score:.2f}', fontsize=10)
+        ax.axis('off')
+        col_idx += 1
+
+    plt.tight_layout()
+    plt.show()
+
 
 
 if __name__ == "__main__":
-    model = BinaryLogReg()
-    (x_train, y_train), (x_test, y_test) = load_2_7_mnist()
-    history = model.train(x_train, y_train, x_test, y_test)
-
-    # Plot losses
-    plt.plot(history["train_losses"], label="Train")
-    plt.plot(history["test_losses"], label="Test")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.legend()
-    plt.show()
-
-    # Plot error
-    plt.plot(history["train_errors"], label="Train")
-    plt.plot(history["test_errors"], label="Test")
-    plt.xlabel("Epochs")
-    plt.ylabel("Misclassification Error")
-    plt.legend()
-    plt.show()
+    compare_learning_rate()
