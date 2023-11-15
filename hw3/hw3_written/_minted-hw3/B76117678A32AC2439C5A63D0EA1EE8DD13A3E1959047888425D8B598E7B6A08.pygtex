@@ -1,0 +1,280 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Tuple}\PYG{p}{,} \PYG{n}{Union}
+
+\PYG{k+kn}{import} \PYG{n+nn}{matplotlib.pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{,} \PYG{n}{problem}
+
+
+\PYG{k}{def} \PYG{n+nf}{f\PYGZus{}true}\PYG{p}{(}\PYG{n}{x}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}True function, which was used to generate data.}
+\PYG{l+s+sd}{    Should be used for plotting.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x (np.ndarray): A (n,) array. Input.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: A (n,) array.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{k}{return} \PYG{l+m+mi}{4} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{x}\PYG{p}{)} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{cos}\PYG{p}{(}\PYG{l+m+mi}{6} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{x} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{)}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{poly\PYGZus{}kernel}\PYG{p}{(}\PYG{n}{x\PYGZus{}i}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{x\PYGZus{}j}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{d}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Polynomial kernel.}
+
+\PYG{l+s+sd}{    Given two indices a and b it should calculate:}
+\PYG{l+s+sd}{    K[a, b] = (x\PYGZus{}i[a] * x\PYGZus{}j[b] + 1)\PYGZca{}d}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x\PYGZus{}i (np.ndarray): An (n,) array. Observations (Might be different from x\PYGZus{}j).}
+\PYG{l+s+sd}{        x\PYGZus{}j (np.ndarray): An (m,) array. Observations (Might be different from x\PYGZus{}i).}
+\PYG{l+s+sd}{        d (int): Degree of polynomial.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: A (n, m) matrix, where each element is as described above (see equation for K[a, b])}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} It is crucial for this function to be vectorized, and not contain for\PYGZhy{}loops.}
+\PYG{l+s+sd}{            It will be called a lot, and it has to be fast for reasonable run\PYGZhy{}time.}
+\PYG{l+s+sd}{        \PYGZhy{} You might find .outer functions useful for this function.}
+\PYG{l+s+sd}{            They apply an operation similar to xx\PYGZca{}T (if x is a vector), but not necessarily with multiplication.}
+\PYG{l+s+sd}{            To use it simply append .outer to function. For example: np.add.outer, np.divide.outer}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    \PYG{n}{poly\PYGZus{}ker} \PYG{o}{=} \PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{multiply}\PYG{o}{.}\PYG{n}{outer}\PYG{p}{(}\PYG{n}{x\PYGZus{}i}\PYG{p}{,} \PYG{n}{x\PYGZus{}j}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{**}\PYG{n}{d}
+    \PYG{k}{return} \PYG{n}{poly\PYGZus{}ker}
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{rbf\PYGZus{}kernel}\PYG{p}{(}\PYG{n}{x\PYGZus{}i}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{x\PYGZus{}j}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{gamma}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Radial Basis Function (RBF) kernel.}
+
+\PYG{l+s+sd}{    Given two indices a and b it should calculate:}
+\PYG{l+s+sd}{    K[a, b] = exp(\PYGZhy{}gamma*(x\PYGZus{}i[a] \PYGZhy{} x\PYGZus{}j[b])\PYGZca{}2)}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x\PYGZus{}i (np.ndarray): An (n,) array. Observations (Might be different from x\PYGZus{}j).}
+\PYG{l+s+sd}{        x\PYGZus{}j (np.ndarray): An (m,) array. Observations (Might be different from x\PYGZus{}i).}
+\PYG{l+s+sd}{        gamma (float): Gamma parameter for RBF kernel. (Inverse of standard deviation)}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: A (n, m) matrix, where each element is as described above (see equation for K[a, b])}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} It is crucial for this function to be vectorized, and not contain for\PYGZhy{}loops.}
+\PYG{l+s+sd}{            It will be called a lot, and it has to be fast for reasonable run\PYGZhy{}time.}
+\PYG{l+s+sd}{        \PYGZhy{} You might find .outer functions useful for this function.}
+\PYG{l+s+sd}{            They apply an operation similar to xx\PYGZca{}T (if x is a vector), but not necessarily with multiplication.}
+\PYG{l+s+sd}{            To use it simply append .outer to function. For example: np.add.outer, np.divide.outer}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    
+    \PYG{n}{rbf\PYGZus{}ker} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{n}{gamma} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{subtract}\PYG{o}{.}\PYG{n}{outer}\PYG{p}{(}\PYG{n}{x\PYGZus{}i}\PYG{p}{,} \PYG{n}{x\PYGZus{}j}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{rbf\PYGZus{}ker}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{train}\PYG{p}{(}
+    \PYG{n}{x}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,}
+    \PYG{n}{y}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,}
+    \PYG{n}{kernel\PYGZus{}function}\PYG{p}{:} \PYG{n}{Union}\PYG{p}{[}\PYG{n}{poly\PYGZus{}kernel}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}kernel}\PYG{p}{],}  \PYG{c+c1}{\PYGZsh{} type: ignore}
+    \PYG{n}{kernel\PYGZus{}param}\PYG{p}{:} \PYG{n}{Union}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{],}
+    \PYG{n}{\PYGZus{}lambda}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{,}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Trains and returns an alpha vector, that can be used to make predictions.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x (np.ndarray): Array of shape (n,). Observations.}
+\PYG{l+s+sd}{        y (np.ndarray): Array of shape (n,). Targets.}
+\PYG{l+s+sd}{        kernel\PYGZus{}function (Union[poly\PYGZus{}kernel, rbf\PYGZus{}kernel]): Either poly\PYGZus{}kernel or rbf\PYGZus{}kernel functions.}
+\PYG{l+s+sd}{        kernel\PYGZus{}param (Union[int, float]): Gamma (if kernel\PYGZus{}function is rbf\PYGZus{}kernel) or d (if kernel\PYGZus{}function is poly\PYGZus{}kernel).}
+\PYG{l+s+sd}{        \PYGZus{}lambda (float): Regularization constant.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: Array of shape (n,) containing alpha hat as described in the pdf.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    \PYG{n}{k} \PYG{o}{=} \PYG{n}{kernel\PYGZus{}function}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{kernel\PYGZus{}param}\PYG{p}{)}
+    \PYG{n}{a} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{solve}\PYG{p}{(}\PYG{n}{k} \PYG{o}{+} \PYG{n}{\PYGZus{}lambda} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{eye}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{k}\PYG{p}{)),} \PYG{n}{y}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{a}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{,} \PYG{n}{start\PYGZus{}line}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{cross\PYGZus{}validation}\PYG{p}{(}
+    \PYG{n}{x}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,}
+    \PYG{n}{y}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,}
+    \PYG{n}{kernel\PYGZus{}function}\PYG{p}{:} \PYG{n}{Union}\PYG{p}{[}\PYG{n}{poly\PYGZus{}kernel}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}kernel}\PYG{p}{],}  \PYG{c+c1}{\PYGZsh{} type: ignore}
+    \PYG{n}{kernel\PYGZus{}param}\PYG{p}{:} \PYG{n}{Union}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{],}
+    \PYG{n}{\PYGZus{}lambda}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}folds}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Performs cross validation.}
+
+\PYG{l+s+sd}{    In a for loop over folds:}
+\PYG{l+s+sd}{        1. Set current fold to be validation, and set all other folds as training set.}
+\PYG{l+s+sd}{        2, Train a function on training set, and then get mean squared error on current fold (validation set).}
+\PYG{l+s+sd}{    Return validation loss averaged over all folds.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x (np.ndarray): Array of shape (n,). Observations.}
+\PYG{l+s+sd}{        y (np.ndarray): Array of shape (n,). Targets.}
+\PYG{l+s+sd}{        kernel\PYGZus{}function (Union[poly\PYGZus{}kernel, rbf\PYGZus{}kernel]): Either poly\PYGZus{}kernel or rbf\PYGZus{}kernel functions.}
+\PYG{l+s+sd}{        kernel\PYGZus{}param (Union[int, float]): Gamma (if kernel\PYGZus{}function is rbf\PYGZus{}kernel) or d (if kernel\PYGZus{}function is poly\PYGZus{}kernel).}
+\PYG{l+s+sd}{        \PYGZus{}lambda (float): Regularization constant.}
+\PYG{l+s+sd}{        num\PYGZus{}folds (int): Number of folds. It should be either len(x) for LOO, or 10 for 10\PYGZhy{}fold CV.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        float: Average loss of trained function on validation sets across folds.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{total\PYGZus{}mse} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{n}{fold\PYGZus{}size} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o}{//} \PYG{n}{num\PYGZus{}folds}
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{num\PYGZus{}folds}\PYG{p}{):}
+        \PYG{n}{start}\PYG{p}{,} \PYG{n}{end} \PYG{o}{=} \PYG{n}{i} \PYG{o}{*} \PYG{n}{fold\PYGZus{}size}\PYG{p}{,} \PYG{p}{(}\PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{o}{*} \PYG{n}{fold\PYGZus{}size}
+
+        \PYG{n}{x\PYGZus{}train} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{concatenate}\PYG{p}{([}\PYG{n}{x}\PYG{p}{[:}\PYG{n}{start}\PYG{p}{],} \PYG{n}{x}\PYG{p}{[}\PYG{n}{end}\PYG{p}{:]])}
+        \PYG{n}{y\PYGZus{}train} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{concatenate}\PYG{p}{([}\PYG{n}{y}\PYG{p}{[:}\PYG{n}{start}\PYG{p}{],} \PYG{n}{y}\PYG{p}{[}\PYG{n}{end}\PYG{p}{:]])} 
+        \PYG{n}{x\PYGZus{}test} \PYG{o}{=} \PYG{n}{x}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}
+        \PYG{n}{y\PYGZus{}test} \PYG{o}{=} \PYG{n}{y}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}
+        
+        \PYG{n}{a} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}\PYG{n}{x\PYGZus{}train}\PYG{p}{,} \PYG{n}{y\PYGZus{}train}\PYG{p}{,} \PYG{n}{kernel\PYGZus{}function}\PYG{p}{,} \PYG{n}{kernel\PYGZus{}param}\PYG{p}{,} \PYG{n}{\PYGZus{}lambda}\PYG{p}{)}
+        \PYG{n}{y\PYGZus{}predict} \PYG{o}{=} \PYG{n}{a} \PYG{o}{@} \PYG{n}{kernel\PYGZus{}function}\PYG{p}{(}\PYG{n}{x\PYGZus{}train}\PYG{p}{,} \PYG{n}{x\PYGZus{}test}\PYG{p}{,} \PYG{n}{kernel\PYGZus{}param}\PYG{p}{)}
+        
+        \PYG{n}{total\PYGZus{}mse} \PYG{o}{+=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{((}\PYG{n}{y\PYGZus{}test} \PYG{o}{\PYGZhy{}} \PYG{n}{y\PYGZus{}predict}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{)}
+        
+    \PYG{k}{return} \PYG{n}{total\PYGZus{}mse} \PYG{o}{/} \PYG{n}{num\PYGZus{}folds}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{rbf\PYGZus{}param\PYGZus{}search}\PYG{p}{(}
+    \PYG{n}{x}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{y}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{p}{:} \PYG{n+nb}{int}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Parameter search for RBF kernel.}
+
+\PYG{l+s+sd}{    There are two possible approaches:}
+\PYG{l+s+sd}{        \PYGZhy{} Grid Search \PYGZhy{} Fix possible values for lambda, loop over them and record value with the lowest loss.}
+\PYG{l+s+sd}{        \PYGZhy{} Random Search \PYGZhy{} Fix number of iterations, during each iteration sample lambda from some distribution and record value with the lowest loss.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x (np.ndarray): Array of shape (n,). Observations.}
+\PYG{l+s+sd}{        y (np.ndarray): Array of shape (n,). Targets.}
+\PYG{l+s+sd}{        num\PYGZus{}folds (int): Number of folds. It should be len(x) for LOO.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        Tuple[float, float]: Tuple containing best performing lambda and gamma pair.}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} You do not really need to search over gamma. 1 / (median(dist(x\PYGZus{}i, x\PYGZus{}j)\PYGZca{}2) for all unique pairs x\PYGZus{}i, x\PYGZus{}j in x}
+\PYG{l+s+sd}{            should be sufficient for this problem. That being said you are more than welcome to do so.}
+\PYG{l+s+sd}{        \PYGZhy{} If using random search we recommend sampling lambda from distribution 10**i, where i\PYGZti{}Unif(\PYGZhy{}5, \PYGZhy{}1)}
+\PYG{l+s+sd}{        \PYGZhy{} If using grid search we recommend choosing possible lambdas to 10**i, where i=linspace(\PYGZhy{}5, \PYGZhy{}1)}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    
+    \PYG{n}{lambda\PYGZus{}values}\PYG{o}{=} \PYG{l+m+mi}{10} \PYG{o}{**} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+    \PYG{n}{gamma} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{o}{/}\PYG{n}{np}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{subtract}\PYG{o}{.}\PYG{n}{outer}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{x}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{)}
+    \PYG{n}{lambda\PYGZus{}mse} \PYG{o}{=} \PYG{p}{[(}\PYG{n}{\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{gamma}\PYG{p}{,} \PYG{n}{cross\PYGZus{}validation}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}kernel}\PYG{p}{,} \PYG{n}{gamma}\PYG{p}{,} \PYG{n}{\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{p}{))} \PYG{k}{for} \PYG{n}{\PYGZus{}lambda} \PYG{o+ow}{in} \PYG{n}{lambda\PYGZus{}values}\PYG{p}{]}
+    \PYG{k}{return} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{lambda\PYGZus{}mse}\PYG{p}{,} \PYG{n}{key}\PYG{o}{=} \PYG{k}{lambda} \PYG{n}{item} \PYG{p}{:} \PYG{n}{item}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{])[}\PYG{l+m+mi}{0}\PYG{p}{:}\PYG{l+m+mi}{2}\PYG{p}{]}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{poly\PYGZus{}param\PYGZus{}search}\PYG{p}{(}
+    \PYG{n}{x}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{y}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{p}{:} \PYG{n+nb}{int}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Parameter search for Poly kernel.}
+
+\PYG{l+s+sd}{    There are two possible approaches:}
+\PYG{l+s+sd}{        \PYGZhy{} Grid Search \PYGZhy{} Fix possible values for lambdas and ds.}
+\PYG{l+s+sd}{            Have nested loop over all possibilities and record value with the lowest loss.}
+\PYG{l+s+sd}{        \PYGZhy{} Random Search \PYGZhy{} Fix number of iterations, during each iteration sample lambda, d from some distributions and record value with the lowest loss.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        x (np.ndarray): Array of shape (n,). Observations.}
+\PYG{l+s+sd}{        y (np.ndarray): Array of shape (n,). Targets.}
+\PYG{l+s+sd}{        num\PYGZus{}folds (int): Number of folds. It should be either len(x) for LOO, or 10 for 10\PYGZhy{}fold CV.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        Tuple[float, int]: Tuple containing best performing lambda and d pair.}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} You can use gamma = 1 / median((x\PYGZus{}i \PYGZhy{} x\PYGZus{}j)\PYGZca{}2) for all unique pairs x\PYGZus{}i, x\PYGZus{}j in x) for this problem. }
+\PYG{l+s+sd}{          However, if you would like to search over other possible values of gamma, you are welcome to do so.}
+\PYG{l+s+sd}{        \PYGZhy{} If using random search we recommend sampling lambda from distribution 10**i, where i\PYGZti{}Unif(\PYGZhy{}5, \PYGZhy{}1)}
+\PYG{l+s+sd}{            and d from distribution [5, 6, ..., 24, 25]}
+\PYG{l+s+sd}{        \PYGZhy{} If using grid search we recommend choosing possible lambdas to 10**i, where i=linspace(\PYGZhy{}5, \PYGZhy{}1)}
+\PYG{l+s+sd}{            and possible ds to [5, 6, ..., 24, 25]}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    \PYG{n}{lambda\PYGZus{}values}\PYG{o}{=} \PYG{l+m+mi}{10} \PYG{o}{**} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{lambda\PYGZus{}values}\PYG{p}{)}
+    \PYG{n}{degree\PYGZus{}values} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{25}\PYG{p}{,} \PYG{l+m+mi}{21}\PYG{p}{)}
+    \PYG{n}{lambda\PYGZus{}grid}\PYG{p}{,} \PYG{n}{degree\PYGZus{}grid} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{meshgrid}\PYG{p}{(}\PYG{n}{lambda\PYGZus{}values}\PYG{p}{,} \PYG{n}{degree\PYGZus{}values}\PYG{p}{)}
+    \PYG{n}{combos} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{zip}\PYG{p}{(}\PYG{n}{lambda\PYGZus{}grid}\PYG{o}{.}\PYG{n}{flatten}\PYG{p}{(),} \PYG{n}{degree\PYGZus{}grid}\PYG{o}{.}\PYG{n}{flatten}\PYG{p}{()))}
+    \PYG{n}{lambda\PYGZus{}mse} \PYG{o}{=} \PYG{p}{[(}\PYG{n}{lambda\PYGZus{}value}\PYG{p}{,} \PYG{n}{degree\PYGZus{}value}\PYG{p}{,} \PYG{n}{cross\PYGZus{}validation}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{poly\PYGZus{}kernel}\PYG{p}{,} \PYG{n}{degree\PYGZus{}value}\PYG{p}{,} \PYG{n}{lambda\PYGZus{}value}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{p}{))} \PYG{k}{for} \PYG{n}{lambda\PYGZus{}value}\PYG{p}{,} \PYG{n}{degree\PYGZus{}value} \PYG{o+ow}{in} \PYG{n}{combos}\PYG{p}{]}
+    \PYG{k}{return} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{lambda\PYGZus{}mse}\PYG{p}{,} \PYG{n}{key}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{item} \PYG{p}{:} \PYG{n}{item}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{])[}\PYG{l+m+mi}{0}\PYG{p}{:}\PYG{l+m+mi}{2}\PYG{p}{]}
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{,} \PYG{n}{start\PYGZus{}line}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{main}\PYG{p}{():}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Main function of the problem}
+
+\PYG{l+s+sd}{    It should:}
+\PYG{l+s+sd}{        A. Using x\PYGZus{}30, y\PYGZus{}30, rbf\PYGZus{}param\PYGZus{}search and poly\PYGZus{}param\PYGZus{}search report optimal values for lambda (for rbf), gamma, lambda (for poly) and d.}
+\PYG{l+s+sd}{            Note that x\PYGZus{}30, y\PYGZus{}30 has been loaded in for you. You do not need to use (x\PYGZus{}300, y\PYGZus{}300) or (x\PYGZus{}1000, y\PYGZus{}1000).}
+\PYG{l+s+sd}{        B. For both rbf and poly kernels, train a function using x\PYGZus{}30, y\PYGZus{}30 and plot predictions on a fine grid}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} In part b fine grid can be defined as np.linspace(0, 1, num=100)}
+\PYG{l+s+sd}{        \PYGZhy{} When plotting you might find that your predictions go into hundreds, causing majority of the plot to look like a flat line.}
+\PYG{l+s+sd}{            To avoid this call plt.ylim(\PYGZhy{}6, 6).}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}300}\PYG{p}{,} \PYG{n}{y\PYGZus{}300}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}1000}\PYG{p}{,} \PYG{n}{y\PYGZus{}1000}\PYG{p}{)} \PYG{o}{=} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}kernel\PYGZus{}bootstrap\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{poly\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{poly\PYGZus{}degree} \PYG{o}{=} \PYG{n}{poly\PYGZus{}param\PYGZus{}search}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
+    \PYG{n}{rbf\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}gamma} \PYG{o}{=} \PYG{n}{rbf\PYGZus{}param\PYGZus{}search}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{,} \PYG{n}{num\PYGZus{}folds}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
+    
+    \PYG{n+nb}{print} \PYG{p}{((}\PYG{n}{poly\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{poly\PYGZus{}degree}\PYG{p}{),} \PYG{p}{(}\PYG{n}{rbf\PYGZus{}lambda}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}gamma}\PYG{p}{))}
+    
+\PYG{k}{def} \PYG{n+nf}{plot\PYGZus{}data}\PYG{p}{():}
+    \PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}300}\PYG{p}{,} \PYG{n}{y\PYGZus{}300}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}1000}\PYG{p}{,} \PYG{n}{y\PYGZus{}1000}\PYG{p}{)} \PYG{o}{=} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}kernel\PYGZus{}bootstrap\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} rbf\PYGZus{}lambda, rbf\PYGZus{}gamma = rbf\PYGZus{}param\PYGZus{}search(x\PYGZus{}30, y\PYGZus{}30, num\PYGZus{}folds=10)}
+    \PYG{n}{poly\PYGZus{}a} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{,} \PYG{n}{poly\PYGZus{}kernel}\PYG{p}{,} \PYG{l+m+mi}{19}\PYG{p}{,} \PYG{l+m+mf}{2.782559402207126e\PYGZhy{}05}\PYG{p}{)}
+    \PYG{n}{rbf\PYGZus{}a} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}kernel}\PYG{p}{,} \PYG{l+m+mf}{11.201924992299844}\PYG{p}{,} \PYG{l+m+mf}{1e\PYGZhy{}05}\PYG{p}{)}
+    
+    \PYG{n}{f\PYGZus{}rbf} \PYG{o}{=} \PYG{k}{lambda} \PYG{n}{x} \PYG{p}{:} \PYG{n}{rbf\PYGZus{}a} \PYG{o}{@} \PYG{n}{rbf\PYGZus{}kernel}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{l+m+mf}{11.201924992299844}\PYG{p}{)}
+    \PYG{n}{f\PYGZus{}poly} \PYG{o}{=} \PYG{k}{lambda} \PYG{n}{x} \PYG{p}{:} \PYG{n}{poly\PYGZus{}a} \PYG{o}{@} \PYG{n}{poly\PYGZus{}kernel}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{l+m+mi}{19}\PYG{p}{)}
+    
+    
+    \PYG{c+c1}{\PYGZsh{} Fine grid for plotting}
+    \PYG{n}{fine\PYGZus{}grid} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{)}
+    
+    \PYG{c+c1}{\PYGZsh{} Evaluating functions on the grid}
+    \PYG{n}{rbf\PYGZus{}predictions} \PYG{o}{=} \PYG{n}{f\PYGZus{}rbf}\PYG{p}{(}\PYG{n}{fine\PYGZus{}grid}\PYG{p}{)}
+    \PYG{n}{poly\PYGZus{}predictions} \PYG{o}{=} \PYG{n}{f\PYGZus{}poly}\PYG{p}{(}\PYG{n}{fine\PYGZus{}grid}\PYG{p}{)}
+    \PYG{n}{true\PYGZus{}values} \PYG{o}{=} \PYG{n}{f\PYGZus{}true}\PYG{p}{(}\PYG{n}{fine\PYGZus{}grid}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Plotting}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{l+m+mi}{6}\PYG{p}{))}
+
+    \PYG{c+c1}{\PYGZsh{} Original data}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{x\PYGZus{}30}\PYG{p}{,} \PYG{n}{y\PYGZus{}30}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Original Data\PYGZsq{}}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}black\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} True function}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{fine\PYGZus{}grid}\PYG{p}{,} \PYG{n}{true\PYGZus{}values}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}True Function\PYGZsq{}}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}green\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} RBF predictions}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{fine\PYGZus{}grid}\PYG{p}{,} \PYG{n}{rbf\PYGZus{}predictions}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}RBF Kernel Predictions\PYGZsq{}}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}blue\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Polynomial predictions}
+    \PYG{c+c1}{\PYGZsh{} plt.plot(fine\PYGZus{}grid, poly\PYGZus{}predictions, label=\PYGZsq{}Polynomial Kernel Predictions\PYGZsq{}, color=\PYGZsq{}red\PYGZsq{})}
+
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Kernel Regression Predictions\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}x\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}y\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} plot\PYGZus{}data()}
+    \PYG{n}{main}\PYG{p}{()}
+\end{Verbatim}

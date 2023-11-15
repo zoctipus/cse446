@@ -1,0 +1,245 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{k+kn}{from} \PYG{n+nn}{layers} \PYG{k+kn}{import} \PYG{n}{LinearLayer}\PYG{p}{,} \PYG{n}{ReLULayer}\PYG{p}{,} \PYG{n}{SigmoidLayer}\PYG{p}{,} \PYG{n}{SoftmaxLayer}
+    \PYG{k+kn}{from} \PYG{n+nn}{losses} \PYG{k+kn}{import} \PYG{n}{CrossEntropyLossLayer}
+    \PYG{k+kn}{from} \PYG{n+nn}{optimizers} \PYG{k+kn}{import} \PYG{n}{SGDOptimizer}
+    \PYG{k+kn}{from} \PYG{n+nn}{train} \PYG{k+kn}{import} \PYG{n}{plot\PYGZus{}model\PYGZus{}guesses}\PYG{p}{,} \PYG{n}{train}
+\PYG{k}{else}\PYG{p}{:}
+    \PYG{k+kn}{from} \PYG{n+nn}{.layers} \PYG{k+kn}{import} \PYG{n}{LinearLayer}\PYG{p}{,} \PYG{n}{ReLULayer}\PYG{p}{,} \PYG{n}{SigmoidLayer}\PYG{p}{,} \PYG{n}{SoftmaxLayer}
+    \PYG{k+kn}{from} \PYG{n+nn}{.optimizers} \PYG{k+kn}{import} \PYG{n}{SGDOptimizer}
+    \PYG{k+kn}{from} \PYG{n+nn}{.losses} \PYG{k+kn}{import} \PYG{n}{CrossEntropyLossLayer}
+    \PYG{k+kn}{from} \PYG{n+nn}{.train} \PYG{k+kn}{import} \PYG{n}{plot\PYGZus{}model\PYGZus{}guesses}\PYG{p}{,} \PYG{n}{train}
+
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Any}\PYG{p}{,} \PYG{n}{Dict}
+
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{matplotlib} \PYG{k+kn}{import} \PYG{n}{pyplot} \PYG{k}{as} \PYG{n}{plt}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.utils.data} \PYG{k+kn}{import} \PYG{n}{DataLoader}\PYG{p}{,} \PYG{n}{TensorDataset}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{,} \PYG{n}{problem}
+
+\PYG{n}{RNG} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Generator}\PYG{p}{()}
+\PYG{n}{RNG}\PYG{o}{.}\PYG{n}{manual\PYGZus{}seed}\PYG{p}{(}\PYG{l+m+mi}{446}\PYG{p}{)}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{crossentropy\PYGZus{}parameter\PYGZus{}search}\PYG{p}{(}
+    \PYG{n}{dataset\PYGZus{}train}\PYG{p}{:} \PYG{n}{TensorDataset}\PYG{p}{,} \PYG{n}{dataset\PYGZus{}val}\PYG{p}{:} \PYG{n}{TensorDataset}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Dict}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{Any}\PYG{p}{]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Main subroutine of the CrossEntropy problem.}
+\PYG{l+s+sd}{    It\PYGZsq{}s goal is to perform a search over hyperparameters, and return a dictionary containing training history of models, as well as models themselves.}
+
+\PYG{l+s+sd}{    Models to check (please try them in this order):}
+\PYG{l+s+sd}{        \PYGZhy{} Linear Regression Model}
+\PYG{l+s+sd}{        \PYGZhy{} Network with one hidden layer of size 2 and sigmoid activation function after the hidden layer}
+\PYG{l+s+sd}{        \PYGZhy{} Network with one hidden layer of size 2 and ReLU activation function after the hidden layer}
+\PYG{l+s+sd}{        \PYGZhy{} Network with two hidden layers (each with size 2)}
+\PYG{l+s+sd}{            and Sigmoid, ReLU activation function after corresponding hidden layers}
+\PYG{l+s+sd}{        \PYGZhy{} Network with two hidden layers (each with size 2)}
+\PYG{l+s+sd}{            and ReLU, Sigmoid activation function after corresponding hidden layers}
+\PYG{l+s+sd}{    NOTE: Each model should end with a Softmax layer due to CrossEntropyLossLayer requirement.}
+
+\PYG{l+s+sd}{    Notes:}
+\PYG{l+s+sd}{        \PYGZhy{} Try using learning rate between 1e\PYGZhy{}5 and 1e\PYGZhy{}3.}
+\PYG{l+s+sd}{        \PYGZhy{} When choosing the number of epochs, consider effect of other hyperparameters on it.}
+\PYG{l+s+sd}{            For example as learning rate gets smaller you will need more epochs to converge.}
+\PYG{l+s+sd}{        \PYGZhy{} When searching over batch\PYGZus{}size using powers of 2 (starting at around 32) is typically a good heuristic.}
+\PYG{l+s+sd}{            Make sure it is not too big as you can end up with standard (or almost) gradient descent!}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        dataset\PYGZus{}train (TensorDataset): Dataset for training.}
+\PYG{l+s+sd}{        dataset\PYGZus{}val (TensorDataset): Dataset for validation.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        Dict[str, Any]: Dictionary/Map containing history of training of all models.}
+\PYG{l+s+sd}{            You are free to employ any structure of this dictionary, but we suggest the following:}
+\PYG{l+s+sd}{            \PYGZob{}}
+\PYG{l+s+sd}{                name\PYGZus{}of\PYGZus{}model: \PYGZob{}}
+\PYG{l+s+sd}{                    \PYGZdq{}train\PYGZdq{}: Per epoch losses of model on train set,}
+\PYG{l+s+sd}{                    \PYGZdq{}val\PYGZdq{}: Per epoch losses of model on validation set,}
+\PYG{l+s+sd}{                    \PYGZdq{}model\PYGZdq{}: Actual PyTorch model (type: nn.Module),}
+\PYG{l+s+sd}{                \PYGZcb{}}
+\PYG{l+s+sd}{            \PYGZcb{}}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    \PYG{n}{input\PYGZus{}sample}\PYG{p}{,} \PYG{n}{output\PYGZus{}sample} \PYG{o}{=} \PYG{n}{dataset\PYGZus{}train}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{c+c1}{\PYGZsh{} Determine the shapes}
+    \PYG{k}{class} \PYG{n+nc}{LinearModel}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+        \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{):}
+            \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{()}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax} \PYG{o}{=} \PYG{n}{SoftmaxLayer}\PYG{p}{()}
+        
+        \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inputs}\PYG{p}{):}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{)}
+            \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+
+    \PYG{k}{class} \PYG{n+nc}{OneHiddenLayerModel}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+        \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{n}{hidden\PYGZus{}size}\PYG{p}{,} \PYG{n}{activation\PYGZus{}func}\PYG{p}{):}
+            \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{()}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear0} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{hidden\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation} \PYG{o}{=} \PYG{n}{activation\PYGZus{}func}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear1} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{hidden\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax} \PYG{o}{=} \PYG{n}{SoftmaxLayer}\PYG{p}{()}
+            
+        \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inputs}\PYG{p}{):}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear0}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{))}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear1}\PYG{p}{(}\PYG{n}{x}\PYG{p}{))}
+            \PYG{k}{return} \PYG{n}{x}
+        
+    \PYG{k}{class} \PYG{n+nc}{TwoHiddenLayerModel}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+        \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{n}{hidden\PYGZus{}size}\PYG{p}{,} \PYG{n}{activation\PYGZus{}func1}\PYG{p}{,} \PYG{n}{activation\PYGZus{}func2}\PYG{p}{):}
+            \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{()}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear0} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{n}{hidden\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation0} \PYG{o}{=} \PYG{n}{activation\PYGZus{}func1}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear1} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{hidden\PYGZus{}size}\PYG{p}{,} \PYG{n}{hidden\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation1} \PYG{o}{=} \PYG{n}{activation\PYGZus{}func2}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear2} \PYG{o}{=} \PYG{n}{LinearLayer}\PYG{p}{(}\PYG{n}{hidden\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax} \PYG{o}{=} \PYG{n}{SoftmaxLayer}\PYG{p}{()}
+            
+        \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inputs}\PYG{p}{):}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation0}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear0}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{))}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{activation1}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear1}\PYG{p}{(}\PYG{n}{x}\PYG{p}{))}
+            \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{softmax}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{linear2}\PYG{p}{(}\PYG{n}{x}\PYG{p}{))}
+            \PYG{k}{return} \PYG{n}{x}
+   
+    \PYG{n}{input\PYGZus{}feature\PYGZus{}size} \PYG{o}{=} \PYG{n}{input\PYGZus{}sample}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{n}{output\PYGZus{}size} \PYG{o}{=} \PYG{l+m+mi}{2}
+    
+    \PYG{k+kn}{import} \PYG{n+nn}{itertools}
+    \PYG{n}{lr}\PYG{o}{=} \PYG{l+m+mi}{10} \PYG{o}{**} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}
+    \PYG{n}{batch\PYGZus{}sizes} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{**} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{7}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}
+    \PYG{n}{models} \PYG{o}{=} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s2}{\PYGZdq{}Linear\PYGZdq{}}\PYG{p}{:} \PYG{n}{LinearModel}\PYG{p}{(}\PYG{n}{input\PYGZus{}feature\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{),}
+        \PYG{l+s+s2}{\PYGZdq{}OneHidden\PYGZus{}Sigmoid\PYGZdq{}}\PYG{p}{:} \PYG{n}{OneHiddenLayerModel}\PYG{p}{(}\PYG{n}{input\PYGZus{}feature\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{SigmoidLayer}\PYG{p}{()),}
+        \PYG{l+s+s2}{\PYGZdq{}OneHidden\PYGZus{}ReLU\PYGZdq{}}\PYG{p}{:} \PYG{n}{OneHiddenLayerModel}\PYG{p}{(}\PYG{n}{input\PYGZus{}feature\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{ReLULayer}\PYG{p}{()),}
+        \PYG{l+s+s2}{\PYGZdq{}TwoHidden\PYGZus{}SigmoidReLU\PYGZdq{}}\PYG{p}{:} \PYG{n}{TwoHiddenLayerModel}\PYG{p}{(}\PYG{n}{input\PYGZus{}feature\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{SigmoidLayer}\PYG{p}{(),} \PYG{n}{ReLULayer}\PYG{p}{()),}
+        \PYG{l+s+s2}{\PYGZdq{}TwoHidden\PYGZus{}ReLUSigmoid\PYGZdq{}}\PYG{p}{:} \PYG{n}{TwoHiddenLayerModel}\PYG{p}{(}\PYG{n}{input\PYGZus{}feature\PYGZus{}size}\PYG{p}{,} \PYG{n}{output\PYGZus{}size}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{ReLULayer}\PYG{p}{(),} \PYG{n}{SigmoidLayer}\PYG{p}{())}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{n}{result} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+    
+    \PYG{n}{combos} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{itertools}\PYG{o}{.}\PYG{n}{product}\PYG{p}{(}\PYG{n}{lr}\PYG{p}{,} \PYG{n}{batch\PYGZus{}sizes}\PYG{p}{,} \PYG{n}{models}\PYG{o}{.}\PYG{n}{items}\PYG{p}{()))}
+    \PYG{n}{count} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{k}{for} \PYG{n}{lr}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{p}{,} \PYG{p}{[}\PYG{n}{model\PYGZus{}name}\PYG{p}{,} \PYG{n}{model}\PYG{p}{]} \PYG{o+ow}{in} \PYG{n}{combos}\PYG{p}{:}
+        \PYG{n}{train\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{dataset\PYGZus{}train}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{batch\PYGZus{}size}\PYG{p}{),} \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{val\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{dataset\PYGZus{}val}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{batch\PYGZus{}size}\PYG{p}{),} \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{n}{history} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{,} \PYG{n}{model}\PYG{p}{,} \PYG{n}{CrossEntropyLossLayer}\PYG{p}{(),} \PYG{n}{SGDOptimizer}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{(),} \PYG{n}{lr}\PYG{o}{=}\PYG{l+m+mf}{5e\PYGZhy{}3}\PYG{p}{),} \PYG{n}{val\PYGZus{}loader}\PYG{p}{)}
+        \PYG{n}{model\PYGZus{}name\PYGZus{}} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{model\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}lr}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{lr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZus{}batch}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{batch\PYGZus{}size}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{count}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{count} \PYG{o}{+=}\PYG{l+m+mi}{1}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{]} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}train\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{history}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}train\PYGZsq{}}\PYG{p}{]}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}val\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{history}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}val\PYGZsq{}}\PYG{p}{]}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{][}\PYG{l+s+s2}{\PYGZdq{}model\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{model}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}lr\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{lr}
+        \PYG{n}{result}\PYG{p}{[}\PYG{n}{model\PYGZus{}name\PYGZus{}}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}batch\PYGZus{}size\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{batch\PYGZus{}size}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{result}
+            
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{accuracy\PYGZus{}score}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{dataloader}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Calculates accuracy of model on dataloader. Returns it as a fraction.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        model (nn.Module): Model to evaluate.}
+\PYG{l+s+sd}{        dataloader (DataLoader): Dataloader for CrossEntropy.}
+\PYG{l+s+sd}{            Each example is a tuple consiting of (observation, target).}
+\PYG{l+s+sd}{            Observation is a 2\PYGZhy{}d vector of floats.}
+\PYG{l+s+sd}{            Target is an integer representing a correct class to a corresponding observation.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        float: Vanilla python float resprenting accuracy of the model on given dataset/dataloader.}
+\PYG{l+s+sd}{            In range [0, 1].}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} For a single\PYGZhy{}element tensor you can use .item() to cast it to a float.}
+\PYG{l+s+sd}{        \PYGZhy{} This is similar to MSE accuracy\PYGZus{}score function,}
+\PYG{l+s+sd}{            but there will be differences due to slightly different targets in dataloaders.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+    \PYG{n}{correct} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{n}{total} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+        \PYG{k}{for} \PYG{n}{observation}\PYG{p}{,} \PYG{n}{target} \PYG{o+ow}{in} \PYG{n}{dataloader}\PYG{p}{:}
+            \PYG{n}{\PYGZus{}predict} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{observation}\PYG{p}{)}
+            \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{predict\PYGZus{}} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{n}{\PYGZus{}predict}\PYG{o}{.}\PYG{n}{data}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{n}{total} \PYG{o}{+=} \PYG{n}{target}\PYG{o}{.}\PYG{n}{size}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}
+            \PYG{n}{correct} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{predict\PYGZus{}} \PYG{o}{==} \PYG{n}{target}\PYG{p}{)}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{()}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+    \PYG{n}{accuracy} \PYG{o}{=} \PYG{n}{correct} \PYG{o}{/} \PYG{n}{total}
+    \PYG{k}{return} \PYG{n}{accuracy}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{,} \PYG{n}{start\PYGZus{}line}\PYG{o}{=}\PYG{l+m+mi}{7}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{main}\PYG{p}{():}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Main function of the Crossentropy problem.}
+\PYG{l+s+sd}{    It should:}
+\PYG{l+s+sd}{        1. Call crossentropy\PYGZus{}parameter\PYGZus{}search routine and get dictionary for each model architecture/configuration.}
+\PYG{l+s+sd}{        2. Plot Train and Validation losses for each model all on single plot (it should be 10 lines total).}
+\PYG{l+s+sd}{            x\PYGZhy{}axis should be epochs, y\PYGZhy{}axis should me Crossentropy loss, REMEMBER to add legend}
+\PYG{l+s+sd}{        3. Choose and report the best model configuration based on validation losses.}
+\PYG{l+s+sd}{            In particular you should choose a model that achieved the lowest validation loss at ANY point during the training.}
+\PYG{l+s+sd}{        4. Plot best model guesses on test set (using plot\PYGZus{}model\PYGZus{}guesses function from train file)}
+\PYG{l+s+sd}{        5. Report accuracy of the model on test set.}
+
+\PYG{l+s+sd}{    Starter code loads dataset, converts it into PyTorch Datasets, and those into DataLoaders.}
+\PYG{l+s+sd}{    You should use these dataloaders, for the best experience with PyTorch.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}val}\PYG{p}{,} \PYG{n}{y\PYGZus{}val}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x\PYGZus{}test}\PYG{p}{,} \PYG{n}{y\PYGZus{}test}\PYG{p}{)} \PYG{o}{=} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}xor\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{n}{dataset\PYGZus{}train} \PYG{o}{=} \PYG{n}{TensorDataset}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{x}\PYG{p}{),} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{y}\PYG{p}{))}
+    \PYG{n}{dataset\PYGZus{}val} \PYG{o}{=} \PYG{n}{TensorDataset}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{x\PYGZus{}val}\PYG{p}{),} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{y\PYGZus{}val}\PYG{p}{))}
+    \PYG{n}{dataset\PYGZus{}test} \PYG{o}{=} \PYG{n}{TensorDataset}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{x\PYGZus{}test}\PYG{p}{),} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{from\PYGZus{}numpy}\PYG{p}{(}\PYG{n}{y\PYGZus{}test}\PYG{p}{))}
+
+    \PYG{n}{result} \PYG{o}{=} \PYG{n}{crossentropy\PYGZus{}parameter\PYGZus{}search}\PYG{p}{(}\PYG{n}{dataset\PYGZus{}train}\PYG{p}{,} \PYG{n}{dataset\PYGZus{}val}\PYG{p}{)}
+    
+    \PYG{c+c1}{\PYGZsh{} Plotting Training and Validation Losses}
+    \PYG{n}{plot\PYGZus{}and\PYGZus{}save\PYGZus{}graphs}\PYG{p}{(}\PYG{n}{result}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}crossentropy\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Choosing and Reporting the Best Model}
+    \PYG{n}{best\PYGZus{}model\PYGZus{}name} \PYG{o}{=} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{result}\PYG{p}{,} \PYG{n}{key}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{k}\PYG{p}{:} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{result}\PYG{p}{[}\PYG{n}{k}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}val\PYGZsq{}}\PYG{p}{]))}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Best Model: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}model\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Plot Best Model Guesses on Test Set}
+    \PYG{n}{test\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{dataset\PYGZus{}test}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{32}\PYG{p}{)}
+    \PYG{n}{best\PYGZus{}model} \PYG{o}{=} \PYG{n}{result}\PYG{p}{[}\PYG{n}{best\PYGZus{}model\PYGZus{}name}\PYG{p}{][}\PYG{l+s+s2}{\PYGZdq{}model\PYGZdq{}}\PYG{p}{]}
+    \PYG{n}{plot\PYGZus{}model\PYGZus{}guesses}\PYG{p}{(}\PYG{n}{test\PYGZus{}loader}\PYG{p}{,} \PYG{n}{best\PYGZus{}model}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}best model\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Report Accuracy on Test Set}
+    \PYG{c+c1}{\PYGZsh{} best score: 0.98}
+    \PYG{n}{accuracy} \PYG{o}{=} \PYG{n}{accuracy\PYGZus{}score}\PYG{p}{(}\PYG{n}{best\PYGZus{}model}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Accuracy on Test Set: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{accuracy}\PYG{l+s+si}{:}\PYG{l+s+s2}{.2f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    
+\PYG{k}{def} \PYG{n+nf}{plot\PYGZus{}and\PYGZus{}save\PYGZus{}graphs}\PYG{p}{(}\PYG{n}{results}\PYG{p}{,} \PYG{n}{filename\PYGZus{}prefix}\PYG{p}{):}
+    \PYG{n}{lr\PYGZus{}batch\PYGZus{}combinations} \PYG{o}{=} \PYG{n+nb}{set}\PYG{p}{((}\PYG{n}{value}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}lr\PYGZsq{}}\PYG{p}{],} \PYG{n}{value}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}batch\PYGZus{}size\PYGZsq{}}\PYG{p}{])} \PYG{k}{for} \PYG{n}{value} \PYG{o+ow}{in} \PYG{n}{results}\PYG{o}{.}\PYG{n}{values}\PYG{p}{())}
+    \PYG{n}{unique\PYGZus{}batch\PYGZus{}sizes} \PYG{o}{=} \PYG{n+nb}{set}\PYG{p}{(}\PYG{n}{batch\PYGZus{}size} \PYG{k}{for} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size} \PYG{o+ow}{in} \PYG{n}{lr\PYGZus{}batch\PYGZus{}combinations}\PYG{p}{)}
+    \PYG{n}{unique\PYGZus{}lrs} \PYG{o}{=} \PYG{n+nb}{set}\PYG{p}{(}\PYG{n}{lr} \PYG{k}{for} \PYG{n}{lr}\PYG{p}{,} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n}{lr\PYGZus{}batch\PYGZus{}combinations}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} For each batch size, plot a figure with subplots for each learning rate}
+    \PYG{k}{for} \PYG{n}{batch\PYGZus{}size} \PYG{o+ow}{in} \PYG{n}{unique\PYGZus{}batch\PYGZus{}sizes}\PYG{p}{:}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{15}\PYG{p}{,} \PYG{l+m+mi}{6} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{unique\PYGZus{}lrs}\PYG{p}{)))}  \PYG{c+c1}{\PYGZsh{} Adjust the figure size as needed}
+
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{lr} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{unique\PYGZus{}lrs}\PYG{p}{,} \PYG{n}{start}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{):}
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplot}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{unique\PYGZus{}lrs}\PYG{p}{),} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{i}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Create a subplot for each learning rate}
+
+            \PYG{c+c1}{\PYGZsh{} Filter and plot models with the current lr and batch\PYGZus{}size combination}
+            \PYG{k}{for} \PYG{n}{model\PYGZus{}name} \PYG{o+ow}{in} \PYG{n}{results}\PYG{p}{:}
+                \PYG{k}{if} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}lr}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{lr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}batch}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}size}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{model\PYGZus{}name}\PYG{p}{:}
+                    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{results}\PYG{p}{[}\PYG{n}{model\PYGZus{}name}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}train\PYGZsq{}}\PYG{p}{],} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{model\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ \PYGZhy{} Train\PYGZdq{}}\PYG{p}{)}
+                    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{results}\PYG{p}{[}\PYG{n}{model\PYGZus{}name}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}val\PYGZsq{}}\PYG{p}{],} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{model\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ \PYGZhy{} Val\PYGZdq{}}\PYG{p}{)}
+
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Epochs\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}MSE Loss\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}LR: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{lr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{()}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{savefig}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZus{}written/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{filename\PYGZus{}prefix}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}batch}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}size}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{.png\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}  \PYG{c+c1}{\PYGZsh{} Close the figure to free memory}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{n}{main}\PYG{p}{()}
+\end{Verbatim}

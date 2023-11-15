@@ -1,0 +1,29 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{k}{class} \PYG{n+nc}{SigmoidLayer}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+    \PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{x}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{:}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Performs a sigmoid calculation:}
+\PYG{l+s+sd}{        Element\PYGZhy{}wise given x return 1 / (1 + e\PYGZca{}(\PYGZhy{}x))}
+
+\PYG{l+s+sd}{        Args:}
+\PYG{l+s+sd}{            x (torch.Tensor): More specifically a torch.FloatTensor, with some shape.}
+\PYG{l+s+sd}{                Input data.}
+
+\PYG{l+s+sd}{        Returns:}
+\PYG{l+s+sd}{            torch.Tensor: More specifically a torch.FloatTensor, with the same shape as x.}
+\PYG{l+s+sd}{                Every negative element should be substituted with sigmoid of that element.}
+\PYG{l+s+sd}{                Output data.}
+
+\PYG{l+s+sd}{        Note:}
+\PYG{l+s+sd}{            \PYGZhy{} YOU ARE NOT ALLOWED to use torch.nn.Sigmoid (or torch.nn.functional.sigmoid) in this class.}
+\PYG{l+s+sd}{                YOU CAN however use other aliases of sigmoid function in PyTorch if you are able to find them in docs.}
+\PYG{l+s+sd}{            \PYGZhy{} Make use of pytorch documentation: https://pytorch.org/docs/stable/index.html}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{return} \PYG{l+m+mi}{1} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{+} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{n}{x}\PYG{p}{))}
+\end{Verbatim}

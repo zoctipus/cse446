@@ -1,0 +1,30 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{k}{class} \PYG{n+nc}{ReLULayer}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+    \PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{x}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{:}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Performs a Rectified Linear Unit calculation (ReLU):}
+\PYG{l+s+sd}{        Element\PYGZhy{}wise:}
+\PYG{l+s+sd}{            \PYGZhy{} if x \PYGZgt{} 0: return x}
+\PYG{l+s+sd}{            \PYGZhy{} else: return 0}
+
+\PYG{l+s+sd}{        Args:}
+\PYG{l+s+sd}{            x (torch.Tensor): More specifically a torch.FloatTensor, with some shape.}
+\PYG{l+s+sd}{                Input data.}
+
+\PYG{l+s+sd}{        Returns:}
+\PYG{l+s+sd}{            torch.Tensor: More specifically a torch.FloatTensor, with the same shape as x.}
+\PYG{l+s+sd}{                Every negative element should be substituted with 0.}
+\PYG{l+s+sd}{                Output data.}
+
+\PYG{l+s+sd}{        Note:}
+\PYG{l+s+sd}{            \PYGZhy{} YOU ARE NOT ALLOWED to use torch.nn.ReLU (or it\PYGZsq{}s functional counterparts) in this class}
+\PYG{l+s+sd}{            \PYGZhy{} Make use of pytorch documentation: https://pytorch.org/docs/stable/index.html}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{return} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{where}\PYG{p}{(}\PYG{n}{x} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{(}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{x}\PYG{o}{.}\PYG{n}{dtype}\PYG{p}{))}
+\end{Verbatim}

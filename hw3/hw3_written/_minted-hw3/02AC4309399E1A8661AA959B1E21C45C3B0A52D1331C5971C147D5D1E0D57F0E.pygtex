@@ -1,0 +1,149 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Dict}\PYG{p}{,} \PYG{n}{List}\PYG{p}{,} \PYG{n}{Optional}
+
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{matplotlib} \PYG{k+kn}{import} \PYG{n}{pyplot} \PYG{k}{as} \PYG{n}{plt}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}\PYG{p}{,} \PYG{n}{optim}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.utils.data} \PYG{k+kn}{import} \PYG{n}{DataLoader}
+\PYG{k+kn}{from} \PYG{n+nn}{tqdm} \PYG{k+kn}{import} \PYG{n}{tqdm}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{train}\PYG{p}{(}
+    \PYG{n}{train\PYGZus{}loader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,}
+    \PYG{n}{model}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{,}
+    \PYG{n}{criterion}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{,}
+    \PYG{n}{optimizer}\PYG{p}{:} \PYG{n}{optim}\PYG{o}{.}\PYG{n}{Optimizer}\PYG{p}{,}
+    \PYG{n}{val\PYGZus{}loader}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n}{DataLoader}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{,}
+    \PYG{n}{epochs}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{100}\PYG{p}{,}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Dict}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{]]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Performs training of a provided model and provided dataset.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        train\PYGZus{}loader (DataLoader): DataLoader for training set.}
+\PYG{l+s+sd}{        model (nn.Module): Model to train.}
+\PYG{l+s+sd}{        criterion (nn.Module): Callable instance of loss function, that can be used to calculate loss for each batch.}
+\PYG{l+s+sd}{        optimizer (optim.Optimizer): Optimizer used for updating parameters of the model.}
+\PYG{l+s+sd}{        val\PYGZus{}loader (Optional[DataLoader], optional): DataLoader for validation set.}
+\PYG{l+s+sd}{            If defined, if should be used to calculate loss on validation set, after each epoch.}
+\PYG{l+s+sd}{            Defaults to None.}
+\PYG{l+s+sd}{        epochs (int, optional): Number of epochs (passes through dataset/dataloader) to train for.}
+\PYG{l+s+sd}{            Defaults to 100.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        Dict[str, List[float]]: Dictionary with history of training.}
+\PYG{l+s+sd}{            It should have have two keys: \PYGZdq{}train\PYGZdq{} and \PYGZdq{}val\PYGZdq{},}
+\PYG{l+s+sd}{            each pointing to a list of floats representing loss at each epoch for corresponding dataset.}
+\PYG{l+s+sd}{            If val\PYGZus{}loader is undefined, \PYGZdq{}val\PYGZdq{} can point at an empty list.}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} Calculating training loss might expensive if you do it seperately from training a model.}
+\PYG{l+s+sd}{            Using a running loss approach is advised.}
+\PYG{l+s+sd}{            In this case you will just use the loss that you called .backward() on add sum them up across batches.}
+\PYG{l+s+sd}{            Then you can divide by length of train\PYGZus{}loader, and you will have an average loss for each batch.}
+\PYG{l+s+sd}{        \PYGZhy{} You will be iterating over multiple models in main function.}
+\PYG{l+s+sd}{            Make sure the optimizer is defined for proper model.}
+\PYG{l+s+sd}{        \PYGZhy{} Make use of pytorch documentation: https://pytorch.org/docs/stable/index.html}
+\PYG{l+s+sd}{            You might find some examples/tutorials useful.}
+\PYG{l+s+sd}{            Also make sure to check out torch.no\PYGZus{}grad function. It might be useful!}
+\PYG{l+s+sd}{        \PYGZhy{} Make sure to load the model parameters corresponding to model with the best validation loss (if val\PYGZus{}loader is provided).}
+\PYG{l+s+sd}{            You might want to look into state\PYGZus{}dict: https://pytorch.org/tutorials/beginner/saving\PYGZus{}loading\PYGZus{}models.html}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} raise NotImplementedError(\PYGZdq{}Your Code Goes Here\PYGZdq{})}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+    \PYG{n}{history} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{:} \PYG{p}{[],} \PYG{l+s+s2}{\PYGZdq{}val\PYGZdq{}}\PYG{p}{:} \PYG{p}{[]\PYGZcb{}}
+    \PYG{k}{for} \PYG{n}{epoch} \PYG{o+ow}{in} \PYG{n}{tqdm}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{epochs}\PYG{p}{)):}
+        \PYG{n}{total\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{k}{for} \PYG{n}{\PYGZus{}x}\PYG{p}{,} \PYG{n}{\PYGZus{}y} \PYG{o+ow}{in} \PYG{n}{train\PYGZus{}loader}\PYG{p}{:}
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{zero\PYGZus{}grad}\PYG{p}{()}
+            \PYG{n}{y\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{\PYGZus{}x}\PYG{p}{)}
+            \PYG{n}{loss} \PYG{o}{=} \PYG{n}{criterion}\PYG{p}{(}\PYG{n}{y\PYGZus{}pred}\PYG{p}{,} \PYG{n}{\PYGZus{}y}\PYG{p}{)}
+            \PYG{n}{loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{step}\PYG{p}{()}
+            \PYG{n}{total\PYGZus{}loss} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+        
+        \PYG{n}{avg\PYGZus{}train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{total\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{)}
+        \PYG{n}{history}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{avg\PYGZus{}train\PYGZus{}loss}\PYG{p}{)}
+        
+        \PYG{k}{if} \PYG{n}{val\PYGZus{}loader}\PYG{p}{:}
+            \PYG{n}{total\PYGZus{}val\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mi}{0}
+            \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+                \PYG{k}{for} \PYG{n}{\PYGZus{}x}\PYG{p}{,} \PYG{n}{\PYGZus{}y} \PYG{o+ow}{in} \PYG{n}{val\PYGZus{}loader}\PYG{p}{:}
+                    \PYG{n}{y\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{\PYGZus{}x}\PYG{p}{)}
+                    \PYG{n}{loss} \PYG{o}{=} \PYG{n}{criterion}\PYG{p}{(}\PYG{n}{y\PYGZus{}pred}\PYG{p}{,} \PYG{n}{\PYGZus{}y}\PYG{p}{)}
+                    \PYG{n}{total\PYGZus{}val\PYGZus{}loss} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+            \PYG{n}{ave\PYGZus{}val\PYGZus{}loss} \PYG{o}{=} \PYG{n}{total\PYGZus{}val\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{val\PYGZus{}loader}\PYG{p}{)}
+            \PYG{n}{history}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}val\PYGZdq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{ave\PYGZus{}val\PYGZus{}loss}\PYG{p}{)}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+            
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}train\PYGZus{}loss: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{history}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}train\PYGZdq{}}\PYG{p}{][}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}} \PYG{o}{+} \PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}val\PYGZus{}loss: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{history}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}val\PYGZdq{}}\PYG{p}{][}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}} \PYG{k}{if} \PYG{n}{val\PYGZus{}loader} \PYG{k}{else} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{)}
+
+    
+    \PYG{k}{return} \PYG{n}{history}
+                
+
+\PYG{k}{def} \PYG{n+nf}{plot\PYGZus{}model\PYGZus{}guesses}\PYG{p}{(}
+    \PYG{n}{dataloader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,} \PYG{n}{model}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{,} \PYG{n}{title}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{None}
+\PYG{p}{):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Helper function!}
+\PYG{l+s+sd}{    Given data and model plots model predictions, and groups them into:}
+\PYG{l+s+sd}{        \PYGZhy{} True positives}
+\PYG{l+s+sd}{        \PYGZhy{} False positives}
+\PYG{l+s+sd}{        \PYGZhy{} True negatives}
+\PYG{l+s+sd}{        \PYGZhy{} False negatives}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        dataloader (DataLoader): Data to plot.}
+\PYG{l+s+sd}{        model (nn.Module): Model to make predictions.}
+\PYG{l+s+sd}{        title (Optional[str], optional): Optional title of the plot.}
+\PYG{l+s+sd}{            Might be useful for distinguishing between MSE and CrossEntropy.}
+\PYG{l+s+sd}{            Defaults to None.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+        \PYG{n}{list\PYGZus{}xs} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{list\PYGZus{}ys\PYGZus{}pred} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{list\PYGZus{}ys\PYGZus{}batch} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{x\PYGZus{}batch}\PYG{p}{,} \PYG{n}{y\PYGZus{}batch} \PYG{o+ow}{in} \PYG{n}{dataloader}\PYG{p}{:}
+            \PYG{n}{y\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{x\PYGZus{}batch}\PYG{p}{)}
+            \PYG{n}{list\PYGZus{}xs}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{x\PYGZus{}batch}\PYG{o}{.}\PYG{n}{numpy}\PYG{p}{())}
+            \PYG{n}{list\PYGZus{}ys\PYGZus{}batch}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{y\PYGZus{}batch}\PYG{o}{.}\PYG{n}{numpy}\PYG{p}{())}
+            \PYG{n}{list\PYGZus{}ys\PYGZus{}pred}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{(}\PYG{n}{y\PYGZus{}pred}\PYG{p}{,} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{.}\PYG{n}{numpy}\PYG{p}{())}
+
+        \PYG{n}{xs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{list\PYGZus{}xs}\PYG{p}{)}
+        \PYG{n}{ys\PYGZus{}pred} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{list\PYGZus{}ys\PYGZus{}pred}\PYG{p}{)}
+        \PYG{n}{ys\PYGZus{}batch} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{list\PYGZus{}ys\PYGZus{}batch}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} True positive}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{ys\PYGZus{}batch}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{2} \PYG{o+ow}{and} \PYG{n}{ys\PYGZus{}batch}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} MSE fix}
+            \PYG{n}{ys\PYGZus{}batch} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{(}\PYG{n}{ys\PYGZus{}batch}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{n}{idxs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{logical\PYGZus{}and}\PYG{p}{(}\PYG{n}{ys\PYGZus{}batch}\PYG{p}{,} \PYG{n}{ys\PYGZus{}pred}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}
+            \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{marker}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}o\PYGZdq{}}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}green\PYGZdq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}True Positive\PYGZdq{}}
+        \PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} False positive}
+        \PYG{n}{idxs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{logical\PYGZus{}and}\PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{ys\PYGZus{}batch}\PYG{p}{,} \PYG{n}{ys\PYGZus{}pred}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}
+            \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{marker}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}o\PYGZdq{}}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}red\PYGZdq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}False Positive\PYGZdq{}}
+        \PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} True negative}
+        \PYG{n}{idxs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{logical\PYGZus{}and}\PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{ys\PYGZus{}batch}\PYG{p}{,} \PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{ys\PYGZus{}pred}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}
+            \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{marker}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}x\PYGZdq{}}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}green\PYGZdq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}True Negative\PYGZdq{}}
+        \PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} False negative}
+        \PYG{n}{idxs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{logical\PYGZus{}and}\PYG{p}{(}\PYG{n}{ys\PYGZus{}batch}\PYG{p}{,} \PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{ys\PYGZus{}pred}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}
+            \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{xs}\PYG{p}{[}\PYG{n}{idxs}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{marker}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}x\PYGZdq{}}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}red\PYGZdq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}False Negative\PYGZdq{}}
+        \PYG{p}{)}
+
+        \PYG{k}{if} \PYG{n}{title}\PYG{p}{:}
+            \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{n}{title}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}x0\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}x1\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+        \PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+\end{Verbatim}

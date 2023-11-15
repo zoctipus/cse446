@@ -70,7 +70,13 @@ class F2(Module):
             k (int): Output dimension/number of classes.
         """
         super().__init__()
-        raise NotImplementedError("Your Code Goes Here")
+        alpha = math.sqrt(1/d)
+        self.W0 = Parameter(torch.empty(d, h0).uniform_(-alpha, alpha))
+        self.b0 = Parameter(torch.empty(h0).uniform_(-alpha, alpha))
+        self.W1 = Parameter(torch.empty(h0, h1).uniform_(-alpha, alpha))
+        self.b1 = Parameter(torch.empty(h1).uniform_(-alpha, alpha))
+        self.W2 = Parameter(torch.empty(h1, k).uniform_(-alpha, alpha))
+        self.b2 = Parameter(torch.empty(k).uniform_(-alpha, alpha))
 
     @problem.tag("hw3-A")
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -92,7 +98,9 @@ class F2(Module):
         Returns:
             torch.Tensor: FloatTensor of shape (n, k). Prediction.
         """
-        raise NotImplementedError("Your Code Goes Here")
+        x = relu(x @ self.W0 + self.b0)
+        x = relu(x @ self.W1 + self.b1)
+        return x @ self.W2 + self.b2
 
 def accuracy_score(model:Module, dataloader, device: torch.device) -> float:
     """Calculates accuracy of model on dataloader. Returns it as a fraction.
@@ -198,7 +206,7 @@ def plot_and_save_graphs(results, filename_prefix):
 
             plt.xlabel('Epochs')
             plt.ylabel('Loss')
-            plt.title(f'{model_name}')
+            plt.title("training loss vs epoch")
             plt.legend()
 
         plt.tight_layout()
@@ -234,10 +242,11 @@ def main():
     import itertools
     
     result = {}
-    lr= 10 ** torch.linspace(-5, -3, 1)
-    batch_sizes = 2 ** torch.linspace(6, 9, 1)
+    lr= 10 ** torch.linspace(-3, -3, 1)
+    batch_sizes = 2 ** torch.linspace(8, 9, 1)
     models = {
-        "F1": F1(h=64, d=feature, k= 10),
+        # "F1": F1(h=64, d=feature, k=10),
+        "F2": F2(h0=32, h1=32, d=feature, k=10)
     }
     combos = list(itertools.product(lr, batch_sizes, models.items()))
     count = 0
@@ -258,7 +267,7 @@ def main():
         result[model_name_]['lr'] = lr
         result[model_name_]['batch_size'] = int(batch_size)
     
-    plot_and_save_graphs(result, "f1")
+        plot_and_save_graphs(result, model_name)
 
 if __name__ == "__main__":
     main()
