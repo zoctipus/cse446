@@ -11,6 +11,8 @@ from torch.nn.functional import cross_entropy, relu, one_hot
 from torch.nn.parameter import Parameter
 from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
+from torch.profiler import profile, record_function
+
 
 from utils import load_dataset, problem
 
@@ -92,7 +94,7 @@ class F2(Module):
         """
         raise NotImplementedError("Your Code Goes Here")
 
-def accuracy_score(model, dataloader) -> float:
+def accuracy_score(model:Module, dataloader, device: torch.device) -> float:
     """Calculates accuracy of model on dataloader. Returns it as a fraction.
 
     Args:
@@ -111,11 +113,13 @@ def accuracy_score(model, dataloader) -> float:
         - This is similar to MSE accuracy_score function,
             but there will be differences due to slightly different targets in dataloaders.
     """
+    model.to(device)
     model.eval()
     correct = 0
     total = 0
     with torch.no_grad():
         for observation, target in dataloader:
+            observation, target = observation.to(device), target.to(device)
             _predict = model(observation)
             _, predict_ = torch.max(_predict.data, 1)
             total += target.size(0)
@@ -125,7 +129,7 @@ def accuracy_score(model, dataloader) -> float:
 
 
 @problem.tag("hw3-A")
-def train(model: Module, optimizer: Adam, train_loader: DataLoader) -> List[float]:
+def train(model: Module, optimizer: Adam, train_loader: DataLoader, device) -> List[float]:
     """
     Train a model until it reaches 99% accuracy on train set, and return list of training crossentropy losses for each epochs.
 
@@ -145,10 +149,12 @@ def train(model: Module, optimizer: Adam, train_loader: DataLoader) -> List[floa
     total_loss = 0
     epoch = 0
     accuracy = 0
+    model.to(device)
     while  accuracy< 0.99:
         epoch += 1
         total_loss = 0
         for _x, _y in train_loader:
+            _x, _y = _x.to(device), _y.to(device)
             optimizer.zero_grad()
             y_pred = model(_x)
             loss = cross_entropy(y_pred, _y)
@@ -157,14 +163,16 @@ def train(model: Module, optimizer: Adam, train_loader: DataLoader) -> List[floa
             total_loss += loss.item()
         avg_train_loss = total_loss / len(train_loader)
         history.append(avg_train_loss)
-        accuracy = accuracy_score(model, train_loader)
+        accuracy = accuracy_score(model, train_loader, device)
         print(f"epoch:{epoch} train_loss:{avg_train_loss} accuracy:{accuracy}")
     return history
 
-def eval_test_loss(model, test_loader):
+def eval_test_loss(model:Module, test_loader, device):
     total_val_loss = 0
+    model.to(device)
     with torch.no_grad():
         for _x, _y in test_loader:
+            _x, _y = _x.to(device), _y.to(device)
             y_pred = model(_x)
             loss = cross_entropy(y_pred, _y)
             total_val_loss += loss.item()
@@ -213,6 +221,8 @@ def main():
     Note that we provided you with code that loads MNIST and changes x's and y's to correct type of tensors.
     We strongly advise that you use torch functionality such as datasets, but as mentioned in the pdf you cannot use anything from torch.nn other than what is imported here.
     """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
     (x, y), (x_test, y_test) = load_dataset("mnist")
     x = torch.from_numpy(x).float()
     y = torch.from_numpy(y).long()
@@ -225,18 +235,18 @@ def main():
     
     result = {}
     lr= 10 ** torch.linspace(-5, -3, 1)
-    batch_sizes = 2 ** torch.linspace(5, 7, 1)
+    batch_sizes = 2 ** torch.linspace(6, 9, 1)
     models = {
         "F1": F1(h=64, d=feature, k= 10),
     }
     combos = list(itertools.product(lr, batch_sizes, models.items()))
     count = 0
     for lr, batch_size, [model_name, model] in combos:
-        train_loader = DataLoader(train_dataset, batch_size=int(batch_size), shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=int(batch_size), shuffle=True, num_workers=12)
         test_loader = DataLoader(test_dataset, batch_size=int(batch_size), shuffle=False)
-        history = train(model=model, optimizer=Adam(params=model.parameters(), lr=lr), train_loader=train_loader)
-        test_loss = eval_test_loss(model=model, test_loader=test_loader)
-        accuracy = accuracy_score(model, test_loader)
+        history = train(model=model, optimizer=Adam(params=model.parameters(), lr=lr), train_loader=train_loader, device=device)
+        test_loss = eval_test_loss(model=model, test_loader=test_loader,device=device)
+        accuracy = accuracy_score(model, test_loader,device=device)
         model_name_ = f'{model_name}_lr{lr}_batch{int(batch_size)}'
         print(f"{count}: {model_name_} accuracy:{accuracy} train loss:{history[-1]} test_loss:{test_loss} param_size:{count_parameters(model)}")
         count +=1
