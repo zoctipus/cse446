@@ -1,0 +1,37 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{k}{class} \PYG{n+nc}{SoftmaxLayer}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+    \PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{x}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{:}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Performs a softmax calculation.}
+\PYG{l+s+sd}{        Given a matrix x (n, d) on each element performs:}
+
+\PYG{l+s+sd}{        softmax(x) = exp(x\PYGZus{}ij) / sum\PYGZus{}k=0\PYGZca{}d exp(x\PYGZus{}ik)}
+
+\PYG{l+s+sd}{        i.e. it first takes an exponential of each element,}
+\PYG{l+s+sd}{            and that normalizes rows so that their L\PYGZhy{}1 norm is equal to 1.}
+
+\PYG{l+s+sd}{        Args:}
+\PYG{l+s+sd}{            x (torch.Tensor): More specifically a torch.FloatTensor, with shape (n, d).}
+\PYG{l+s+sd}{                Input data.}
+
+\PYG{l+s+sd}{        Returns:}
+\PYG{l+s+sd}{            torch.Tensor: More specifically a torch.FloatTensor, also with shape (n, d).}
+\PYG{l+s+sd}{                Each row has L\PYGZhy{}1 norm of 1, and each element is in [0, 1] (i.e. each row is a probability vector).}
+\PYG{l+s+sd}{                Output data.}
+
+\PYG{l+s+sd}{        Note:}
+\PYG{l+s+sd}{            \PYGZhy{} For a numerically stable approach to softmax (needed for the problem),}
+\PYG{l+s+sd}{                first subtract max of x from data (no need for dim argument, torch.max(x) suffices).}
+\PYG{l+s+sd}{                This causes exponent to not blow up, and arrives to exactly the same answer.}
+\PYG{l+s+sd}{            \PYGZhy{} YOU ARE NOT ALLOWED to use torch.nn.Softmax (or it\PYGZsq{}s functional counterparts) in this class.}
+\PYG{l+s+sd}{            \PYGZhy{} Make use of pytorch documentation: https://pytorch.org/docs/stable/index.html}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{x\PYGZus{}} \PYG{o}{=} \PYG{n}{x} \PYG{o}{\PYGZhy{}} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{n}{x\PYGZus{}}\PYG{p}{)}\PYG{o}{/} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{n}{x\PYGZus{}}\PYG{p}{),} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{keepdim}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+\end{Verbatim}

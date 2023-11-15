@@ -1,0 +1,72 @@
+\newpage
+\section{}
+\subsection*{Part a}
+\inputminted{python3}{../homeworks/intro_pytorch/layers/linear.py}
+\inputminted{python3}{../homeworks/intro_pytorch/layers/relu.py}
+\inputminted{python3}{../homeworks/intro_pytorch/layers/sigmoid.py}
+\inputminted{python3}{../homeworks/intro_pytorch/layers/softmax.py}
+\inputminted{python3}{../homeworks/intro_pytorch/losses/CrossEntropy.py}
+\inputminted{python3}{../homeworks/intro_pytorch/losses/MSE.py}
+\inputminted{python3}{../homeworks/intro_pytorch/optimizers/SGD.py}
+\inputminted{python3}{../homeworks/intro_pytorch/train.py}
+\inputminted{python3}{../homeworks/intro_pytorch/crossentropy_search.py}
+\inputminted{python3}{../homeworks/intro_pytorch/mean_squared_error_search.py}
+
+\subsection*{Part b}
+\begin{figure}[!h]
+    \centering
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{crossentropy_batch32.png}
+        \caption{Batch Size 32}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{crossentropy_batch64.png}
+        \caption{Batch Size 64}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{crossentropy_batch128.png}
+        \caption{Batch Size 128}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering\includegraphics[width=1\linewidth]{crossentropy_best.jpg}
+    \caption[short]{best hyperparameter lr: 0.001, batch size:128, model: Two Hidden Layer Sigmoid ReLU}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{mse_model_losses_batch32.png}
+        \caption{Batch Size 32}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{mse_model_losses_batch64.png}
+        \caption{Batch Size 64}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\linewidth}
+        \includegraphics[width=\linewidth]{mse_model_losses_batch128.png}
+        \caption{Batch Size 128}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering\includegraphics[width=1\linewidth]{MSE_best.jpg}
+    \caption[short]{best hyperparameter lr: 0.001, batch size:128, model: Two Hidden Layer Sigmoid ReLU}
+\end{figure}
+
+\newpage
+\subsection*{Part c}
+\begin{figure}[!h]
+    \centering\includegraphics[width=0.8\linewidth]{crossentropy_best_model.png}
+    \caption[short]{Crossentropy best model accuracy: 0.98}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering\includegraphics[width=0.8\linewidth]{mse_best_model.png}
+    \caption[short]{MSE best model accuracy: 0.7}
+\end{figure}

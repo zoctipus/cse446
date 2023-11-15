@@ -1,0 +1,55 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Optional}
+
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{k}{class} \PYG{n+nc}{LinearLayer}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+    \PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{,} \PYG{n}{start\PYGZus{}line}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}
+        \PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{dim\PYGZus{}in}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{dim\PYGZus{}out}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{generator}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{Generator}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{None}
+    \PYG{p}{):}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Linear Layer, which performs calculation of: x @ weight + bias}
+
+\PYG{l+s+sd}{        In constructor you should initialize weight and bias according to dimensions provided.}
+\PYG{l+s+sd}{        You should use torch.randn function to initialize them by normal distribution, and provide the generator if it\PYGZsq{}s defined.}
+
+\PYG{l+s+sd}{        Both weight and bias should be of torch\PYGZsq{}s type float.}
+\PYG{l+s+sd}{        Additionally, for optimizer to work properly you will want to wrap both weight and bias in nn.Parameter.}
+
+\PYG{l+s+sd}{        Args:}
+\PYG{l+s+sd}{            dim\PYGZus{}in (int): Number of features in data input.}
+\PYG{l+s+sd}{            dim\PYGZus{}out (int): Number of features output data should have.}
+\PYG{l+s+sd}{            generator (Optional[torch.Generator], optional): Generator to use when creating weight and bias.}
+\PYG{l+s+sd}{                If defined it should be passed into torch.randn function.}
+\PYG{l+s+sd}{                Defaults to None.}
+
+\PYG{l+s+sd}{        Note:}
+\PYG{l+s+sd}{            \PYGZhy{} YOU ARE NOT ALLOWED to use torch.nn.Linear (or it\PYGZsq{}s functional counterparts) in this class}
+\PYG{l+s+sd}{            \PYGZhy{} Make use of pytorch documentation: https://pytorch.org/docs/stable/index.html}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{generator} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{weight} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Parameter}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n}{dim\PYGZus{}in}\PYG{p}{,} \PYG{n}{dim\PYGZus{}out}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{float64}\PYG{p}{))}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{bias} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Parameter}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n}{dim\PYGZus{}out}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{float64}\PYG{p}{))}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{weight} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Parameter}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n}{dim\PYGZus{}in}\PYG{p}{,} \PYG{n}{dim\PYGZus{}out}\PYG{p}{,} \PYG{n}{generator}\PYG{o}{=}\PYG{n}{generator}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{float64}\PYG{p}{))}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{bias} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Parameter}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n}{dim\PYGZus{}out}\PYG{p}{,} \PYG{n}{generator}\PYG{o}{=}\PYG{n}{generator}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{float64}\PYG{p}{))}
+
+    \PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw3\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{x}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{:}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Actually perform multiplication x @ weight + bias}
+
+\PYG{l+s+sd}{        Args:}
+\PYG{l+s+sd}{            x (torch.Tensor): More specifically a torch.FloatTensor, with shape of (n, dim\PYGZus{}in).}
+\PYG{l+s+sd}{                Input data.}
+
+\PYG{l+s+sd}{        Returns:}
+\PYG{l+s+sd}{            torch.Tensor: More specifically a torch.FloatTensor, with shape of (n, dim\PYGZus{}out).}
+\PYG{l+s+sd}{                Output data.}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{return} \PYG{n}{x} \PYG{o}{@} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{weight} \PYG{o}{+} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{bias}
+\end{Verbatim}

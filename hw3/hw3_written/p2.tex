@@ -1,0 +1,17 @@
+\newpage
+\section{}
+
+\subsection*{Part a}
+\begin{align*}
+    \phi(x) \cdot \phi(x_0) &= \sum_{i=0}^{\infty} \left( \frac{1}{\sqrt{i!}} e^{-\frac{x^2}{2}} x^i \right) \left( \frac{1}{\sqrt{i!}} e^{-\frac{x_0^2}{2}} x_0^i \right) & \text{Definition of $\phi(x)$} \\
+    &= \sum_{i=0}^{\infty} \frac{1}{i!} e^{-\frac{x^2 + x_0^2}{2}} x^i x_0^i & \text{Simplification} \\
+    &= e^{-\frac{x^2 + x_0^2}{2}} \sum_{i=0}^{\infty} \frac{{(xx_0)}^i}{i!} & \text{Factorization} \\
+    &= e^{-\frac{x^2}{2}} e^{-\frac{x_0^2}{2}} e^{xx_0} & \text{Taylor Series of $e^{xx_0}$ as $e^z = \sum_{i=0}^{\infty} \frac{z^i}{i!}$} \\
+    &= e^{-\frac{x^2}{2} - \frac{x_0^2}{2} + xx_0}\\
+    &= e^{-\frac{{(x - x_0)}^2}{2}}
+\end{align*}
+
+    
+Therefore, $K(x, x_0) = e^{-\frac{{(x-x_0)}^2}{2}}$ is indeed a kernel function for $ \phi(x)$.
+    
+
