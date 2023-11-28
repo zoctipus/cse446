@@ -1,0 +1,117 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{List}\PYG{p}{,} \PYG{n}{Tuple}
+
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{itertools}
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{problem}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw4\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{calculate\PYGZus{}centers}\PYG{p}{(}
+    \PYG{n}{data}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{classifications}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{num\PYGZus{}centers}\PYG{p}{:} \PYG{n+nb}{int}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Sub\PYGZhy{}routine of Lloyd\PYGZsq{}s algorithm that calculates the centers given datapoints and their respective classifications/assignments.}
+\PYG{l+s+sd}{    num\PYGZus{}centers is additionally provided for speed\PYGZhy{}up purposes.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        data (np.ndarray): Array of shape (n, d). Training data set.}
+\PYG{l+s+sd}{        classifications (np.ndarray): Array of shape (n,) full of integers in range \PYGZob{}0, 1, ...,  num\PYGZus{}centers \PYGZhy{} 1\PYGZcb{}.}
+\PYG{l+s+sd}{            Data point at index i is assigned to classifications[i].}
+\PYG{l+s+sd}{        num\PYGZus{}centers (int): Number of centers for reference.}
+\PYG{l+s+sd}{            Might be usefull for pre\PYGZhy{}allocating numpy array (Faster that appending to list).}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: Array of shape (num\PYGZus{}centers, d) containing new centers.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{d} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+    \PYG{n}{cluster\PYGZus{}sums} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}centers}\PYG{p}{,} \PYG{n}{d}\PYG{p}{))}
+    \PYG{n}{cluster\PYGZus{}counts} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{num\PYGZus{}centers}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)):}
+        \PYG{n}{cluster\PYGZus{}sums}\PYG{p}{[}\PYG{n}{classifications}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]]} \PYG{o}{+=} \PYG{n}{data}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
+        \PYG{n}{cluster\PYGZus{}counts}\PYG{p}{[}\PYG{n}{classifications}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]]} \PYG{o}{+=} \PYG{l+m+mi}{1}
+
+    \PYG{c+c1}{\PYGZsh{} Avoid division by zero for empty clusters}
+    \PYG{n}{cluster\PYGZus{}counts}\PYG{p}{[}\PYG{n}{cluster\PYGZus{}counts} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{1}
+
+    \PYG{n}{new\PYGZus{}centers} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}sums} \PYG{o}{/} \PYG{n}{cluster\PYGZus{}counts}\PYG{p}{[:,} \PYG{k+kc}{None}\PYG{p}{]}
+
+    \PYG{k}{return} \PYG{n}{new\PYGZus{}centers}
+
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw4\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{cluster\PYGZus{}data}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{centers}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Sub\PYGZhy{}routine of Lloyd\PYGZsq{}s algorithm that clusters datapoints to centers given datapoints and centers.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        data (np.ndarray): Array of shape (n, d). Training data set.}
+\PYG{l+s+sd}{        centers (np.ndarray): Array of shape (k, d). Each row is a center to which a datapoint can be clustered.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: Array of integers of shape (n,), with each entry being in range \PYGZob{}0, 1, 2, ..., k \PYGZhy{} 1\PYGZcb{}.}
+\PYG{l+s+sd}{            Entry j at index i should mean that j\PYGZca{}th center is the closest to data[i] datapoint.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    
+    \PYG{n}{distances} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{centers}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]))}
+    \PYG{k}{for} \PYG{n}{idx}\PYG{p}{,} \PYG{n}{center} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{centers}\PYG{p}{):}
+        \PYG{n}{distances}\PYG{p}{[:,} \PYG{n}{idx}\PYG{p}{]} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{((}\PYG{n}{data} \PYG{o}{\PYGZhy{}} \PYG{n}{center}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{))}
+    \PYG{k}{return} \PYG{n}{np}\PYG{o}{.}\PYG{n}{argmin}\PYG{p}{(}\PYG{n}{distances}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{calculate\PYGZus{}error}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{centers}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} This method has been implemented for you.}
+\PYG{l+s+sd}{    }
+\PYG{l+s+sd}{    Calculates error/objective function on a provided dataset, with trained centers.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        data (np.ndarray): Array of shape (n, d). Dataset to evaluate centers on.}
+\PYG{l+s+sd}{        centers (np.ndarray): Array of shape (k, d). Each row is a center to which a datapoint can be clustered.}
+\PYG{l+s+sd}{            These should be trained on training dataset.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        float: Single value representing mean objective function of centers on a provided dataset.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{distances} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{centers}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]))}
+    \PYG{k}{for} \PYG{n}{idx}\PYG{p}{,} \PYG{n}{center} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{centers}\PYG{p}{):}
+        \PYG{n}{distances}\PYG{p}{[:,} \PYG{n}{idx}\PYG{p}{]} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{((}\PYG{n}{data} \PYG{o}{\PYGZhy{}} \PYG{n}{center}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{))}
+    \PYG{k}{return} \PYG{n}{np}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{n}{distances}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{))}
+
+
+\PYG{n+nd}{@problem}\PYG{o}{.}\PYG{n}{tag}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}hw4\PYGZhy{}A\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{def} \PYG{n+nf}{lloyd\PYGZus{}algorithm}\PYG{p}{(}
+    \PYG{n}{data}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{num\PYGZus{}centers}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{epsilon}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mf}{10e\PYGZhy{}3}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{]]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Main part of Lloyd\PYGZsq{}s Algorithm.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{        data (np.ndarray): Array of shape (n, d). Training data set.}
+\PYG{l+s+sd}{        num\PYGZus{}centers (int): Number of centers to train/cluster around.}
+\PYG{l+s+sd}{        epsilon (float, optional): Epsilon for stopping condition.}
+\PYG{l+s+sd}{            Training should stop when max(abs(centers \PYGZhy{} previous\PYGZus{}centers)) is smaller or equal to epsilon.}
+\PYG{l+s+sd}{            Defaults to 10e\PYGZhy{}3.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{        np.ndarray: Tuple of 2 numpy arrays:}
+\PYG{l+s+sd}{            Element at index 0: Array of shape (num\PYGZus{}centers, d) containing trained centers.}
+\PYG{l+s+sd}{            Element at index 1: List of floats of length \PYGZsh{} of iterations}
+\PYG{l+s+sd}{                containing errors at the end of each iteration of lloyd\PYGZsq{}s algorithm.}
+\PYG{l+s+sd}{                You should use the calculate\PYGZus{}error() function that has been implemented for you.}
+
+\PYG{l+s+sd}{    Note:}
+\PYG{l+s+sd}{        \PYGZhy{} For initializing centers please use the first `num\PYGZus{}centers` data points.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{last\PYGZus{}trained\PYGZus{}center} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{((}\PYG{n}{num\PYGZus{}centers}\PYG{p}{,} \PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]))}
+    \PYG{n}{trained\PYGZus{}center} \PYG{o}{=} \PYG{n}{data}\PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{choice}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]),} \PYG{n}{num\PYGZus{}centers}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{)]}
+    \PYG{n}{errors} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{k}{while} \PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{n+nb}{abs}\PYG{p}{(}\PYG{n}{trained\PYGZus{}center} \PYG{o}{\PYGZhy{}} \PYG{n}{last\PYGZus{}trained\PYGZus{}center}\PYG{p}{))} \PYG{o}{\PYGZgt{}} \PYG{n}{epsilon}\PYG{p}{):}
+        \PYG{n}{clustered\PYGZus{}data} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}data}\PYG{p}{(}\PYG{n}{data}\PYG{p}{,} \PYG{n}{trained\PYGZus{}center}\PYG{p}{)}
+        \PYG{n}{last\PYGZus{}trained\PYGZus{}center} \PYG{o}{=} \PYG{n}{trained\PYGZus{}center}
+        \PYG{n}{trained\PYGZus{}center} \PYG{o}{=} \PYG{n}{calculate\PYGZus{}centers}\PYG{p}{(}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data}\PYG{p}{,} \PYG{n}{classifications}\PYG{o}{=}\PYG{n}{clustered\PYGZus{}data}\PYG{p}{,} \PYG{n}{num\PYGZus{}centers}\PYG{o}{=}\PYG{n}{num\PYGZus{}centers}\PYG{p}{)}
+        \PYG{n}{errors}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{calculate\PYGZus{}error}\PYG{p}{(}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data}\PYG{p}{,} \PYG{n}{centers}\PYG{o}{=}\PYG{n}{trained\PYGZus{}center}\PYG{p}{))}
+    \PYG{k}{return} \PYG{p}{(}\PYG{n}{trained\PYGZus{}center}\PYG{p}{,} \PYG{n}{errors}\PYG{p}{)}
+    
+        
+        
+\end{Verbatim}

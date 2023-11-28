@@ -1,0 +1,55 @@
+\newpage
+\section{}
+
+\subsection{a}
+
+
+\subsection*{Data Pre-processing Steps:}
+
+\begin{itemize}
+    \item \textbf{Data Cleaning:} First, Handle missing values, duplicates, and outliers in the dataset.
+    \item \textbf{Encoding Categorical Data:} Then, Convert categorical variables into numerical values using one-hot encoding or label encoding.
+    \item \textbf{Normalization/Standardization:} Scale numerical data to ensure fair contribution to the model.
+    \item \textbf{Missing Data Interpolation:} For missing entries, use methods like k-nearest neighbors, mean/mode imputation, or model-based imputation where appropriate.
+    \item \textbf{Balancing Classes:} Once dataset is complete, check if the dataset is imbalanced, apply oversampling, undersampling, or bootstraping.
+\end{itemize}
+
+\subsection*{Machine Learning Pipeline Steps:}
+
+\begin{itemize}
+    \item \textbf{Train Test Validation Split:} split train, test, validation with 70\%, 20\%, 10\%. 
+    \item \textbf{Feature Selection:} Employ L1 regularization (Lasso) to help in feature selection and to create a sparse model emphasizing important risk factors.
+    \item \textbf{Model Selection:} Start with logistic regression for binary natured classification (disease/no disease). If non-linear relationships are suspected, consider kernel for quicker compute, and deep learning techniques.
+    \item \textbf{Validation Technique:} Use k-fold cross-validation to assess the generalizability of the model.
+    \item \textbf{Hyperparameter Tuning:} Use grid search or random search with cross-validation to find optimal hyperparameters.
+\end{itemize}
+
+\subsection*{Acknowledging Constraints and Measuring Results:}
+
+\begin{itemize}
+    \item \textbf{Accuracy over Efficiency:} Focus on a model that provides more accurate result as they are preciseness of infomation creates huge matter to the user.
+    \item \textbf{Privacy Considerations:} Ensure that the model does not require or store more personal data than necessary, respecting user privacy.
+\end{itemize}
+
+
+\subsection{b}
+
+\subsection*{Shortcomings of Training Process:}
+
+    Limited representation in the training dataset can lead to skewed accuracy across different demographic groups. Features may inadvertently emphasize specific characteristics of the majority population in the dataset.
+    Moreover, Over-representation of certain classes (e.g., more non-disease cases) might result in biased predictions.
+
+
+
+
+\subsection*{Addressing the Shortcomings:}
+1. Include data from varied demographics to ensure representativeness.
+2. plot the data base one the feature and remove data that are overly populated in the same cluster, make sure the training data is equally balanced before training
+3. Apply regularization and stratified k-fold cross-validation for robust performance evaluation.
+
+\subsection{c}
+Ignoring shortcomings in crime datasets can lead to biased predictive policing, disproportionately affecting minority communities. 
+This can misguide resource allocation, favoring increased law enforcement over necessary social services in areas needing them. 
+Such practices erode public trust in law enforcement, potentially reducing crime reporting and exacerbating data inaccuracies. 
+Relying on skewed data raises legal and ethical issues due to the unfair targeting of specific demographics and perpetuates stereotypes, 
+negatively impacting the socio-economic fabric of communities.

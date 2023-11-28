@@ -1,0 +1,24 @@
+\newpage
+\section{}
+\subsection{a}
+
+\[
+\hat{R} = \frac{\sum_{all i}(R_{ij}| R_{ij_1} = R_{ij_2})}{num(R_{ij}| R_{ij_1} = R_{ij_2}) } for j = 0, 1, 2, \dots, movies -1
+\]
+Test Error (MSE) for the estimator $\hat{R}$: $1.063564200567445$
+
+\subsection{b}
+\begin{figure}[!ht]
+    \centering\includegraphics[width=0.7\linewidth]{MSE_USV.png}
+\end{figure}
+
+\subsection{c}
+\begin{figure}[!ht]
+    \centering\includegraphics[width=0.6\linewidth]{mseUVbest.jpg}
+\end{figure}
+\begin{figure}[!ht]
+    \centering\includegraphics[width=1\linewidth]{UVErrors.png}
+\end{figure}
+
+% \inputminted{python3}{../hw4-A/homeworks/matrix_completion_and_recommendation_systems_started_code.py}
+\inputminted{python}{../hw4-A/homeworks/matrix_completion_and_recommendation_systems_started_code.py}

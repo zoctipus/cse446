@@ -1,0 +1,27 @@
+\section{}
+
+\subsection{a}
+True. This is because the rank of the matrix (k = rank (X)) represents the maximum number of linearly independent vectors 
+in the matrix. PCA finds the best linear subspace of a given dimensionality (in this case, k) that captures the most 
+variance in the data. If the dimensionality of the subspace is equal to the rank of the data matrix, it means that 
+the subspace can capture all the variations in the data, leading to no information loss in the projection.
+
+\subsection{b}
+False. $X = USV^T$ then $X^{T}X = VS^{T}U^{T}USV^{T} = VS^{T}SV^{T}$, due to $X^{T}X$ being symmetric, it guarantees it has eigenvalue 
+and eigenvectors such that $X^{T}X v = \lambda v$, therefore $VS^{T}SV^T v = \lambda v$, if we let $v = V$, then $VS^{T}S = \lambda V$.
+Since $S^{T}S$ is diagonal, it shows that $\lambda V$ is equivalent as scaling each column of $V$ with $S^{T}S$. Therefore it is the 
+column of $V$ that are equal to the eigenvectors of $X^{T}X$ not rows
+
+\subsection{c}
+False. Minimizing the k-means objective function by increasing 
+k can lead to overfitting, where clusters may become arbitrarily small and not necessarily meaningful.
+It is better to use methods like the elbow method or silhouette score to determine an appropriate 
+k that balances the granularity of clustering with the overall cluster quality.
+
+\subsection{d}
+False, if there are repeated value s in S, then the row and column in U and V associated with s can have multiple 
+valid order, this shows that USV decomposition are not unique. 
+
+\subsection{e}
+False, the rank of a square matrix is determined by the number of linearly independent rows or columns. However, a linearly independent
+matrix may have repeated eigenvalues and results in number of unique eigenvalues less than its rank,
