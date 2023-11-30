@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.11.12)  28 NOV 2023 14:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.11.12)  29 NOV 2023 18:33
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -492,7 +492,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 24.
  (/usr/local/texlive/2023/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-<octipus.jpeg, id=72, 259.97125pt x 194.7275pt>
+<octipus.jpeg, id=84, 259.97125pt x 194.7275pt>
 File: octipus.jpeg Graphic file (type jpg)
 <use octipus.jpeg>
 Package pdftex.def Info: octipus.jpeg  used on input line 28.
@@ -500,7 +500,7 @@ Package pdftex.def Info: octipus.jpeg  used on input line 28.
  (./p1.tex) (./p2.tex [1
 
 {/usr/local/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./octipus.jpeg>] [2]) (./p3.tex [3{/usr/local/texlive/2023/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [4]
-<mnist_centers.png, id=104, 722.7pt x 289.08pt>
+<mnist_centers.png, id=116, 722.7pt x 289.08pt>
 File: mnist_centers.png Graphic file (type png)
 <use mnist_centers.png>
 Package pdftex.def Info: mnist_centers.png  used on input line 6.
@@ -509,38 +509,76 @@ Package pdftex.def Info: mnist_centers.png  used on input line 6.
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 2.
  [5 <./mnist_centers.png>] [6]) (./_minted-hw4/193024EEA487A7A5849689068CC362EFBDC9B8F7D56C305058CAFEA493735E09.pygtex [7])) (./p4.tex [8]
-<MSE_USV.png, id=126, 602.0091pt x 393.8715pt>
+<MSE_USV.png, id=138, 602.0091pt x 393.8715pt>
 File: MSE_USV.png Graphic file (type png)
 <use MSE_USV.png>
 Package pdftex.def Info: MSE_USV.png  used on input line 12.
 (pdftex.def)             Requested size: 310.50357pt x 203.14958pt.
-<mseUVbest.jpg, id=127, 1798.72pt x 1764.5925pt>
+<mseUVbest.jpg, id=139, 1798.72pt x 1764.5925pt>
 File: mseUVbest.jpg Graphic file (type jpg)
 <use mseUVbest.jpg>
 Package pdftex.def Info: mseUVbest.jpg  used on input line 17.
 (pdftex.def)             Requested size: 266.14978pt x 261.09636pt.
-<UVErrors.png, id=128, 1437.4503pt x 1438.173pt>
+<UVErrors.png, id=140, 1437.4503pt x 1438.173pt>
 File: UVErrors.png Graphic file (type png)
 <use UVErrors.png>
 Package pdftex.def Info: UVErrors.png  used on input line 20.
 (pdftex.def)             Requested size: 443.57848pt x 443.78816pt.
- (./_minted-hw4/3169D45F680D56FFDB70F76D2C5D9C5A77FAD2890793F9BB0C7C137FCB9B9192.pygtex [9 <./MSE_USV.png> <./mseUVbest.jpg>] [10 <./UVErrors.png>] [11] [12])) (./p5.tex) [13] (./hw4.aux)
+ (./_minted-hw4/3169D45F680D56FFDB70F76D2C5D9C5A77FAD2890793F9BB0C7C137FCB9B9192.pygtex [9 <./MSE_USV.png> <./mseUVbest.jpg>] [10 <./UVErrors.png>] [11] [12])) (./p5.tex [13]
+<A5-0.png, id=168, 416.2752pt x 328.8285pt>
+File: A5-0.png Graphic file (type png)
+<use A5-0.png>
+Package pdftex.def Info: A5-0.png  used on input line 18.
+(pdftex.def)             Requested size: 443.57848pt x 350.41302pt.
+<A5-1.png, id=169, 411.2163pt x 328.8285pt>
+File: A5-1.png Graphic file (type png)
+<use A5-1.png>
+Package pdftex.def Info: A5-1.png  used on input line 24.
+(pdftex.def)             Requested size: 443.57848pt x 354.72809pt.
+<A5-2.png, id=170, 416.2752pt x 328.8285pt>
+File: A5-2.png Graphic file (type png)
+<use A5-2.png>
+Package pdftex.def Info: A5-2.png  used on input line 30.
+(pdftex.def)             Requested size: 443.57848pt x 350.41302pt.
+ [14 <./A5-0.png>] [15 <./A5-1.png>] [16 <./A5-2.png>]
+<A5b-0.png, id=189, 482.7636pt x 328.8285pt>
+File: A5b-0.png Graphic file (type png)
+<use A5b-0.png>
+Package pdftex.def Info: A5b-0.png  used on input line 51.
+(pdftex.def)             Requested size: 443.57848pt x 302.14456pt.
+<A5b-1.png, id=190, 490.7133pt x 328.8285pt>
+File: A5b-1.png Graphic file (type png)
+<use A5b-1.png>
+Package pdftex.def Info: A5b-1.png  used on input line 56.
+(pdftex.def)             Requested size: 443.57848pt x 297.2575pt.
+<A5b-2.png, id=191, 490.7133pt x 328.8285pt>
+File: A5b-2.png Graphic file (type png)
+<use A5b-2.png>
+Package pdftex.def Info: A5b-2.png  used on input line 60.
+(pdftex.def)             Requested size: 443.57848pt x 297.2575pt.
+ [17
+
+ <./A5b-0.png>]
+
+LaTeX Warning: Text page 18 contains only floats.
+
+[18 <./A5b-1.png> <./A5b-2.png>] (./_minted-hw4/8CD60EEFF79429E7AE6AB43E36A4CDA4223C3A745F2DC24073334C610021A7E2.pygtex [19] [20] [21] [22] [23])) (./p6.tex [24]) [25] (./hw4.aux)
 Package rerunfilecheck Info: File `hw4.out' has not changed.
-(rerunfilecheck)             Checksum: CBB1674EFB782AD0BCA537A0248FA921;909.
+(rerunfilecheck)             Checksum: DE36757EB7FF6AB158A833BB1856AD40;1065.
  ) 
 Here is how much of TeX's memory you used:
- 14806 strings out of 476025
- 250407 string characters out of 5790016
- 1861388 words of memory out of 5000000
- 34972 multiletter control sequences out of 15000+600000
+ 14886 strings out of 476025
+ 251725 string characters out of 5790016
+ 1862388 words of memory out of 5000000
+ 35019 multiletter control sequences out of 15000+600000
  521428 words of font info for 68 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 77i,6n,76p,572b,825s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 77i,6n,76p,780b,825s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on hw4.pdf (13 pages, 797527 bytes).
+Output written on hw4.pdf (25 pages, 990138 bytes).
 PDF statistics:
- 225 PDF objects out of 1000 (max. 8388607)
- 172 compressed objects within 2 object streams
- 36 named destinations out of 1000 (max. 500000)
- 162 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 312 PDF objects out of 1000 (max. 8388607)
+ 234 compressed objects within 3 object streams
+ 57 named destinations out of 1000 (max. 500000)
+ 216 words of extra memory for PDF output out of 10000 (max. 10000000)
 

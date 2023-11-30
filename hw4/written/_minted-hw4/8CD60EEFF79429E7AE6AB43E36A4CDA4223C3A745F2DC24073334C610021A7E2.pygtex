@@ -1,0 +1,285 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{nn}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Tuple}\PYG{p}{,} \PYG{n}{Union}\PYG{p}{,} \PYG{n}{List}\PYG{p}{,} \PYG{n}{Callable}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.optim} \PYG{k+kn}{import} \PYG{n}{SGD}
+\PYG{k+kn}{import} \PYG{n+nn}{torchvision}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.utils.data} \PYG{k+kn}{import} \PYG{n}{DataLoader}\PYG{p}{,} \PYG{n}{TensorDataset}\PYG{p}{,} \PYG{n}{random\PYGZus{}split}
+\PYG{k+kn}{import} \PYG{n+nn}{matplotlib.pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+\PYG{k+kn}{from} \PYG{n+nn}{tqdm.notebook} \PYG{k+kn}{import} \PYG{n}{tqdm}
+
+\PYG{k}{assert} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{is\PYGZus{}available}\PYG{p}{(),} \PYG{l+s+s2}{\PYGZdq{}GPU is not available, check the directions above (or disable this assertion to use CPU)\PYGZdq{}}
+\PYG{n}{DEVICE} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}cuda\PYGZdq{}} \PYG{k}{if} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{is\PYGZus{}available}\PYG{p}{()} \PYG{k}{else} \PYG{l+s+s2}{\PYGZdq{}cpu\PYGZdq{}}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} this should print out CUDA}
+
+\PYG{n}{train\PYGZus{}dataset} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}./data\PYGZdq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{())}
+\PYG{n}{test\PYGZus{}dataset} \PYG{o}{=} \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{datasets}\PYG{o}{.}\PYG{n}{CIFAR10}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}./data\PYGZdq{}}\PYG{p}{,} \PYG{n}{train}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{download}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{transform}\PYG{o}{=}\PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToTensor}\PYG{p}{())}
+
+\PYG{n}{batch\PYGZus{}size} \PYG{o}{=} \PYG{l+m+mi}{128}
+\PYG{c+c1}{\PYGZsh{} batch\PYGZus{}size= 4}
+
+\PYG{n}{train\PYGZus{}dataset}\PYG{p}{,} \PYG{n}{val\PYGZus{}dataset} \PYG{o}{=} \PYG{n}{random\PYGZus{}split}\PYG{p}{(}\PYG{n}{train\PYGZus{}dataset}\PYG{p}{,} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{l+m+mf}{0.9} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}dataset}\PYG{p}{)),} \PYG{n+nb}{int}\PYG{p}{(} \PYG{l+m+mf}{0.1} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}dataset}\PYG{p}{))])}
+
+\PYG{c+c1}{\PYGZsh{} Create separate dataloaders for the train, test, and validation set}
+\PYG{n}{train\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}
+    \PYG{n}{train\PYGZus{}dataset}\PYG{p}{,}
+    \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n}{batch\PYGZus{}size}\PYG{p}{,}
+    \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}workers}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{,}
+    \PYG{n}{pin\PYGZus{}memory}\PYG{o}{=}\PYG{k+kc}{True}
+\PYG{p}{)}
+
+\PYG{n}{val\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}
+    \PYG{n}{val\PYGZus{}dataset}\PYG{p}{,}
+    \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n}{batch\PYGZus{}size}\PYG{p}{,}
+    \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}workers}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{,}
+    \PYG{n}{pin\PYGZus{}memory}\PYG{o}{=}\PYG{k+kc}{True}
+\PYG{p}{)}
+
+\PYG{n}{test\PYGZus{}loader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}
+    \PYG{n}{test\PYGZus{}dataset}\PYG{p}{,}
+    \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n}{batch\PYGZus{}size}\PYG{p}{,}
+    \PYG{n}{shuffle}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}workers}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{,}
+    \PYG{n}{pin\PYGZus{}memory}\PYG{o}{=}\PYG{k+kc}{True}
+\PYG{p}{)}
+
+
+\PYG{n}{imgs}\PYG{p}{,} \PYG{n}{labels} \PYG{o}{=} \PYG{n+nb}{next}\PYG{p}{(}\PYG{n+nb}{iter}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{))}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}A single batch of images has shape: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{imgs}\PYG{o}{.}\PYG{n}{size}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{example\PYGZus{}image}\PYG{p}{,} \PYG{n}{example\PYGZus{}label} \PYG{o}{=} \PYG{n}{imgs}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{labels}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{n}{c}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{h} \PYG{o}{=} \PYG{n}{example\PYGZus{}image}\PYG{o}{.}\PYG{n}{size}\PYG{p}{()}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}A single RGB image has }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{c}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ channels, width }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{w}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, and height }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{h}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{.\PYGZdq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} This is one way to flatten our images}
+\PYG{n}{batch\PYGZus{}flat\PYGZus{}view} \PYG{o}{=} \PYG{n}{imgs}\PYG{o}{.}\PYG{n}{view}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{c} \PYG{o}{*} \PYG{n}{w} \PYG{o}{*} \PYG{n}{h}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Size of a batch of images flattened with view: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}flat\PYGZus{}view}\PYG{o}{.}\PYG{n}{size}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} This is another equivalent way}
+\PYG{n}{batch\PYGZus{}flat\PYGZus{}flatten} \PYG{o}{=} \PYG{n}{imgs}\PYG{o}{.}\PYG{n}{flatten}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Size of a batch of images flattened with flatten: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}flat\PYGZus{}flatten}\PYG{o}{.}\PYG{n}{size}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} The new dimension is just the product of the ones we flattened}
+\PYG{n}{d} \PYG{o}{=} \PYG{n}{example\PYGZus{}image}\PYG{o}{.}\PYG{n}{flatten}\PYG{p}{()}\PYG{o}{.}\PYG{n}{size}\PYG{p}{()[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{c} \PYG{o}{*} \PYG{n}{w} \PYG{o}{*} \PYG{n}{h} \PYG{o}{==} \PYG{n}{d}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} View the image}
+\PYG{n}{t} \PYG{o}{=}  \PYG{n}{torchvision}\PYG{o}{.}\PYG{n}{transforms}\PYG{o}{.}\PYG{n}{ToPILImage}\PYG{p}{()}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{t}\PYG{p}{(}\PYG{n}{example\PYGZus{}image}\PYG{p}{))}
+
+\PYG{c+c1}{\PYGZsh{} These are what the class labels in CIFAR\PYGZhy{}10 represent. For more information,}
+\PYG{c+c1}{\PYGZsh{} visit https://www.cs.toronto.edu/\PYGZti{}kriz/cifar.html}
+\PYG{n}{classes} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}airplane\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}automobile\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}bird\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cat\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}deer\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}dog\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}frog\PYGZdq{}}\PYG{p}{,}
+           \PYG{l+s+s2}{\PYGZdq{}horse\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}ship\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}truck\PYGZdq{}}\PYG{p}{]}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}This image is labeled as class }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{classes}\PYG{p}{[}\PYG{n}{example\PYGZus{}label}\PYG{p}{]}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{linear\PYGZus{}model}\PYG{p}{()} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Instantiate a linear model and send it to device.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{model} \PYG{o}{=}  \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Sequential}\PYG{p}{(}
+            \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Flatten}\PYG{p}{(),}
+            \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{d}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+         \PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{model}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{fully\PYGZus{}connected\PYGZus{}model}\PYG{p}{(}\PYG{n}{M}\PYG{p}{,} \PYG{n}{input\PYGZus{}dim}\PYG{o}{=}\PYG{l+m+mi}{3072}\PYG{p}{,} \PYG{n}{output\PYGZus{}dim}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Instantiate a fully connected model with one hidden layer and send it to device.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Sequential}\PYG{p}{(}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Flatten}\PYG{p}{(),}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{input\PYGZus{}dim}\PYG{p}{,} \PYG{n}{M}\PYG{p}{),}  \PYG{c+c1}{\PYGZsh{} First fully\PYGZhy{}connected layer with size M}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{ReLU}\PYG{p}{(),}                \PYG{c+c1}{\PYGZsh{} ReLU activation function}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{M}\PYG{p}{,} \PYG{n}{output\PYGZus{}dim}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Second fully\PYGZhy{}connected layer with size 10 (output layer)}
+    \PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{model}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)} 
+
+\PYG{k}{def} \PYG{n+nf}{conv\PYGZus{}model}\PYG{p}{(}\PYG{n}{M}\PYG{p}{,} \PYG{n}{k}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{output\PYGZus{}dim}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{input\PYGZus{}size}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{32}\PYG{p}{,} \PYG{l+m+mi}{32}\PYG{p}{)):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Instantiate a convolutional neural network model with one conv layer followed by max\PYGZhy{}pooling and a fully connected layer, and send it to device.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} Define the model}
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Sequential}\PYG{p}{(}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Conv2d}\PYG{p}{(}\PYG{n}{input\PYGZus{}size}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{M}\PYG{p}{,} \PYG{n}{k}\PYG{p}{,} \PYG{n}{padding}\PYG{o}{=}\PYG{n}{k}\PYG{o}{//}\PYG{l+m+mi}{2}\PYG{p}{),}  \PYG{c+c1}{\PYGZsh{} Convolutional layer with \PYGZsq{}same\PYGZsq{} padding}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{ReLU}\PYG{p}{(),}  \PYG{c+c1}{\PYGZsh{} Activation function}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{MaxPool2d}\PYG{p}{(}\PYG{n}{N}\PYG{p}{),}  \PYG{c+c1}{\PYGZsh{} Max pooling layer}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Flatten}\PYG{p}{(),}  \PYG{c+c1}{\PYGZsh{} Flatten the output}
+        \PYG{c+c1}{\PYGZsh{} No need to calculate the size manually, nn.Linear will infer it}
+        \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{M} \PYG{o}{*} \PYG{p}{((}\PYG{n}{input\PYGZus{}size}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{//} \PYG{n}{N}\PYG{p}{)} \PYG{o}{**} \PYG{l+m+mi}{2}\PYG{p}{),} \PYG{n}{output\PYGZus{}dim}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Fully connected layer}
+    \PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{model}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{train}\PYG{p}{(}
+    \PYG{n}{model}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{,} \PYG{n}{optimizer}\PYG{p}{:} \PYG{n}{SGD}\PYG{p}{,}
+    \PYG{n}{train\PYGZus{}loader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,} \PYG{n}{val\PYGZus{}loader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,}
+    \PYG{n}{epochs}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{20}
+\PYG{p}{)}\PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{],} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{],} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{],} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{]]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Trains a model for the specified number of epochs using the loaders.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{    Lists of training loss, training accuracy, validation loss, validation accuracy for each epoch.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{n}{loss} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{CrossEntropyLoss}\PYG{p}{()}
+    \PYG{n}{train\PYGZus{}losses} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{train\PYGZus{}accuracies} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{val\PYGZus{}losses} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{val\PYGZus{}accuracies} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tqdm}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{epochs}\PYG{p}{)):}
+        \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+        \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+        \PYG{n}{train\PYGZus{}acc} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+
+        \PYG{c+c1}{\PYGZsh{} Main training loop; iterate over train\PYGZus{}loader. The loop}
+        \PYG{c+c1}{\PYGZsh{} terminates when the train loader finishes iterating, which is one epoch.}
+        \PYG{k}{for} \PYG{p}{(}\PYG{n}{x\PYGZus{}batch}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n}{train\PYGZus{}loader}\PYG{p}{:}
+            \PYG{n}{x\PYGZus{}batch}\PYG{p}{,} \PYG{n}{labels} \PYG{o}{=} \PYG{n}{x\PYGZus{}batch}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{),} \PYG{n}{labels}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{zero\PYGZus{}grad}\PYG{p}{()}
+            \PYG{n}{labels\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{x\PYGZus{}batch}\PYG{p}{)}
+            \PYG{n}{batch\PYGZus{}loss} \PYG{o}{=} \PYG{n}{loss}\PYG{p}{(}\PYG{n}{labels\PYGZus{}pred}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)}
+            \PYG{n}{train\PYGZus{}loss} \PYG{o}{=} \PYG{n}{train\PYGZus{}loss} \PYG{o}{+} \PYG{n}{batch\PYGZus{}loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+            \PYG{n}{labels\PYGZus{}pred\PYGZus{}max} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{(}\PYG{n}{labels\PYGZus{}pred}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{n}{batch\PYGZus{}acc} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{labels\PYGZus{}pred\PYGZus{}max} \PYG{o}{==} \PYG{n}{labels}\PYG{p}{)}
+            \PYG{n}{train\PYGZus{}acc} \PYG{o}{=} \PYG{n}{train\PYGZus{}acc} \PYG{o}{+} \PYG{n}{batch\PYGZus{}acc}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+            \PYG{n}{batch\PYGZus{}loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+            \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{step}\PYG{p}{()}
+        \PYG{n}{train\PYGZus{}losses}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{train\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{))}
+        \PYG{n}{train\PYGZus{}accuracies}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{train\PYGZus{}acc} \PYG{o}{/} \PYG{p}{(}\PYG{n}{batch\PYGZus{}size} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{)))}
+
+        \PYG{c+c1}{\PYGZsh{} Validation loop; use .no\PYGZus{}grad() context manager to save memory.}
+        \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+        \PYG{n}{val\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+        \PYG{n}{val\PYGZus{}acc} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+
+        \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+            \PYG{k}{for} \PYG{p}{(}\PYG{n}{v\PYGZus{}batch}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n}{val\PYGZus{}loader}\PYG{p}{:}
+                \PYG{n}{v\PYGZus{}batch}\PYG{p}{,} \PYG{n}{labels} \PYG{o}{=} \PYG{n}{v\PYGZus{}batch}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{),} \PYG{n}{labels}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+                \PYG{n}{labels\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{v\PYGZus{}batch}\PYG{p}{)}
+                \PYG{n}{v\PYGZus{}batch\PYGZus{}loss} \PYG{o}{=} \PYG{n}{loss}\PYG{p}{(}\PYG{n}{labels\PYGZus{}pred}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)}
+                \PYG{n}{val\PYGZus{}loss} \PYG{o}{=} \PYG{n}{val\PYGZus{}loss} \PYG{o}{+} \PYG{n}{v\PYGZus{}batch\PYGZus{}loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+                \PYG{n}{v\PYGZus{}pred\PYGZus{}max} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{(}\PYG{n}{labels\PYGZus{}pred}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{batch\PYGZus{}acc} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{v\PYGZus{}pred\PYGZus{}max} \PYG{o}{==} \PYG{n}{labels}\PYG{p}{)}
+                \PYG{n}{val\PYGZus{}acc} \PYG{o}{=} \PYG{n}{val\PYGZus{}acc} \PYG{o}{+} \PYG{n}{batch\PYGZus{}acc}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+            \PYG{n}{val\PYGZus{}losses}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{val\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{val\PYGZus{}loader}\PYG{p}{))}
+            \PYG{n}{val\PYGZus{}accuracies}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{val\PYGZus{}acc} \PYG{o}{/} \PYG{p}{(}\PYG{n}{batch\PYGZus{}size} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{val\PYGZus{}loader}\PYG{p}{)))}
+
+    \PYG{k}{return} \PYG{n}{train\PYGZus{}losses}\PYG{p}{,} \PYG{n}{train\PYGZus{}accuracies}\PYG{p}{,} \PYG{n}{val\PYGZus{}losses}\PYG{p}{,} \PYG{n}{val\PYGZus{}accuracies}
+
+\PYG{k}{def} \PYG{n+nf}{parameter\PYGZus{}search}\PYG{p}{(}
+    \PYG{n}{train\PYGZus{}loader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,}
+    \PYG{n}{val\PYGZus{}loader}\PYG{p}{:} \PYG{n}{DataLoader}\PYG{p}{,}
+    \PYG{n}{model\PYGZus{}fn}\PYG{p}{:}\PYG{n}{Callable}\PYG{p}{[[],} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{]}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Parameter search for our linear model using SGD.}
+
+\PYG{l+s+sd}{    Args:}
+\PYG{l+s+sd}{    train\PYGZus{}loader: the train dataloader.}
+\PYG{l+s+sd}{    val\PYGZus{}loader: the validation dataloader.}
+\PYG{l+s+sd}{    model\PYGZus{}fn: a function that, when called, returns a torch.nn.Module.}
+
+\PYG{l+s+sd}{    Returns:}
+\PYG{l+s+sd}{    The learning rate with the least validation loss.}
+\PYG{l+s+sd}{    NOTE: you may need to modify this function to search over and return}
+\PYG{l+s+sd}{     other parameters beyond learning rate.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{num\PYGZus{}iter} \PYG{o}{=} \PYG{l+m+mi}{4}
+    \PYG{n}{best\PYGZus{}loss} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{inf}\PYG{p}{)}
+    \PYG{n}{best\PYGZus{}lr} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{n}{best\PYGZus{}M} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{n}{best\PYGZus{}k}\PYG{o}{=}\PYG{l+m+mf}{0.0}
+    \PYG{n}{best\PYGZus{}N}\PYG{o}{=}\PYG{l+m+mf}{0.0}
+    \PYG{n}{num\PYGZus{}epoch} \PYG{o}{=} \PYG{l+m+mi}{100}
+    \PYG{n}{lrs} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mf}{0.02}\PYG{p}{,} \PYG{l+m+mf}{0.1}\PYG{p}{,} \PYG{n}{num\PYGZus{}iter}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} Possible learning rates to try}
+    \PYG{n}{lrs} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mf}{0.001}\PYG{p}{,} \PYG{l+m+mf}{0.01}\PYG{p}{]}
+
+    \PYG{c+c1}{\PYGZsh{} Possible momentum values to try}
+    \PYG{n}{momentums} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{l+m+mf}{0.7}\PYG{p}{,} \PYG{l+m+mf}{0.9}\PYG{p}{]}
+
+    \PYG{c+c1}{\PYGZsh{} Possible numbers of filters to try in the convolutional layer}
+    \PYG{n}{Ms} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{64}\PYG{p}{,} \PYG{l+m+mi}{128}\PYG{p}{,} \PYG{l+m+mi}{256}\PYG{p}{]}
+
+    \PYG{c+c1}{\PYGZsh{} Possible kernel sizes to try for the convolutional layer}
+    \PYG{n}{ks} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{7}\PYG{p}{]}
+
+    \PYG{c+c1}{\PYGZsh{} Possible pooling sizes to try after the convolutional layer}
+    \PYG{n}{Ns} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{]}
+
+    \PYG{c+c1}{\PYGZsh{} Number of epochs for each training run}
+    \PYG{n}{num\PYGZus{}epoch} \PYG{o}{=} \PYG{l+m+mi}{20}
+    \PYG{k}{for} \PYG{n}{M} \PYG{o+ow}{in} \PYG{n}{Ms}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{k} \PYG{o+ow}{in} \PYG{n}{ks}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{N} \PYG{o+ow}{in} \PYG{n}{Ns}\PYG{p}{:}
+                \PYG{k}{for} \PYG{n}{moment} \PYG{o+ow}{in} \PYG{n}{momentums}\PYG{p}{:}
+                    \PYG{k}{for} \PYG{n}{lr} \PYG{o+ow}{in} \PYG{n}{lrs}\PYG{p}{:}
+                        
+                        \PYG{n}{model} \PYG{o}{=} \PYG{n}{model\PYGZus{}fn}\PYG{p}{(}\PYG{n}{M}\PYG{p}{,} \PYG{n}{k}\PYG{p}{,} \PYG{n}{N}\PYG{p}{)}
+                        \PYG{n}{optim} \PYG{o}{=} \PYG{n}{SGD}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{(),} \PYG{n}{lr}\PYG{p}{,} \PYG{n}{momentum}\PYG{o}{=}\PYG{n}{moment}\PYG{p}{)}
+
+                        \PYG{n}{train\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{val\PYGZus{}loss}\PYG{p}{,} \PYG{n}{val\PYGZus{}acc} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}
+                            \PYG{n}{model}\PYG{p}{,}
+                            \PYG{n}{optim}\PYG{p}{,}
+                            \PYG{n}{train\PYGZus{}loader}\PYG{p}{,}
+                            \PYG{n}{val\PYGZus{}loader}\PYG{p}{,}
+                            \PYG{n}{epochs}\PYG{o}{=}\PYG{n}{num\PYGZus{}epoch}
+                            \PYG{p}{)}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}result for learning rate }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{lr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, hidden layer }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{M}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, kernel }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{k}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, pool size:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{N}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, batch size }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}size}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, momentum: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{moment}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}val\PYGZus{}loss: }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{val\PYGZus{}loss}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                        \PYG{k}{if} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{val\PYGZus{}loss}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{best\PYGZus{}loss}\PYG{p}{:}
+                            \PYG{n}{best\PYGZus{}loss} \PYG{o}{=} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{val\PYGZus{}loss}\PYG{p}{)}
+                            \PYG{n}{best\PYGZus{}lr} \PYG{o}{=} \PYG{n}{lr}
+                            \PYG{n}{best\PYGZus{}M} \PYG{o}{=} \PYG{n}{M}
+                            \PYG{n}{best\PYGZus{}moment} \PYG{o}{=} \PYG{n}{moment}
+                            \PYG{n}{best\PYGZus{}k} \PYG{o}{=} \PYG{n}{k}
+                            \PYG{n}{best\PYGZus{}N} \PYG{o}{=} \PYG{n}{N}
+
+    \PYG{k}{return} \PYG{n}{train\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}acc}\PYG{p}{,} \PYG{n}{val\PYGZus{}loss}\PYG{p}{,} \PYG{n}{val\PYGZus{}acc}\PYG{p}{,} \PYG{n}{best\PYGZus{}lr}\PYG{p}{,} \PYG{n}{best\PYGZus{}M}\PYG{p}{,} \PYG{n}{best\PYGZus{}k}\PYG{p}{,} \PYG{n}{best\PYGZus{}N}\PYG{p}{,} \PYG{n}{best\PYGZus{}moment}\PYG{p}{,} \PYG{n}{num\PYGZus{}epoch}
+
+\PYG{n}{train\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}accuracy}\PYG{p}{,} \PYG{n}{val\PYGZus{}loss}\PYG{p}{,} \PYG{n}{val\PYGZus{}accuracy}\PYG{p}{,} \PYG{n}{best\PYGZus{}lr}\PYG{p}{,} \PYG{n}{best\PYGZus{}M}\PYG{p}{,} \PYG{n}{best\PYGZus{}k}\PYG{p}{,} \PYG{n}{best\PYGZus{}N}\PYG{p}{,} \PYG{n}{best\PYGZus{}moment}\PYG{p}{,} \PYG{n}{num\PYGZus{}epoch} \PYG{o}{=} \PYG{n}{parameter\PYGZus{}search}\PYG{p}{(}\PYG{n}{train\PYGZus{}loader}\PYG{p}{,} \PYG{n}{val\PYGZus{}loader}\PYG{p}{,} \PYG{n}{conv\PYGZus{}model}\PYG{p}{)}
+
+\PYG{n}{model} \PYG{o}{=} \PYG{n}{fully\PYGZus{}connected\PYGZus{}model}\PYG{p}{(}\PYG{n}{best\PYGZus{}M}\PYG{p}{,} \PYG{n}{best\PYGZus{}k}\PYG{p}{,} \PYG{n}{best\PYGZus{}N}\PYG{p}{)}
+\PYG{n}{optimizer} \PYG{o}{=} \PYG{n}{SGD}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{(),} \PYG{n}{best\PYGZus{}lr}\PYG{p}{,} \PYG{n}{momentum}\PYG{o}{=}\PYG{n}{best\PYGZus{}moment}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} We are only using 20 epochs for this example. You may have to use more.}
+\PYG{n}{train\PYGZus{}loss}\PYG{p}{,} \PYG{n}{train\PYGZus{}accuracy}\PYG{p}{,} \PYG{n}{val\PYGZus{}loss}\PYG{p}{,} \PYG{n}{val\PYGZus{}accuracy} \PYG{o}{=} \PYG{n}{train}\PYG{p}{(}
+    \PYG{n}{model}\PYG{p}{,} \PYG{n}{optimizer}\PYG{p}{,} \PYG{n}{train\PYGZus{}loader}\PYG{p}{,} \PYG{n}{val\PYGZus{}loader}\PYG{p}{,} \PYG{n}{num\PYGZus{}epoch}
+\PYG{p}{)}
+
+\PYG{n}{epochs} \PYG{o}{=} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{num\PYGZus{}epoch}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{epochs}\PYG{p}{,} \PYG{n}{train\PYGZus{}accuracy}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Train Accuracy\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{epochs}\PYG{p}{,} \PYG{n}{val\PYGZus{}accuracy}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Validation Accuracy\PYGZdq{}}\PYG{p}{,} \PYG{n}{linestyle}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}dotted\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{axhline}\PYG{p}{(}\PYG{n}{y}\PYG{o}{=}\PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{n}{linestyle}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Epoch\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Accuracy\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}lr }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}lr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, hidden layer }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}M}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, kernel }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}k}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, pool size:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}N}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, batch size }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{batch\PYGZus{}size}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, momentum: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{best\PYGZus{}moment}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+\PYG{k}{def} \PYG{n+nf}{evaluate}\PYG{p}{(}
+    \PYG{n}{model}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{,} \PYG{n}{loader}\PYG{p}{:} \PYG{n}{DataLoader}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]:}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Computes test loss and accuracy of model on loader.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{loss} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{CrossEntropyLoss}\PYG{p}{()}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+    \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{n}{test\PYGZus{}acc} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+    \PYG{k}{with} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{no\PYGZus{}grad}\PYG{p}{():}
+        \PYG{k}{for} \PYG{p}{(}\PYG{n}{batch}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n}{loader}\PYG{p}{:}
+            \PYG{n}{batch}\PYG{p}{,} \PYG{n}{labels} \PYG{o}{=} \PYG{n}{batch}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{),} \PYG{n}{labels}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+            \PYG{n}{y\PYGZus{}batch\PYGZus{}pred} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}\PYG{n}{batch}\PYG{p}{)}
+            \PYG{n}{batch\PYGZus{}loss} \PYG{o}{=} \PYG{n}{loss}\PYG{p}{(}\PYG{n}{y\PYGZus{}batch\PYGZus{}pred}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)}
+            \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{n}{test\PYGZus{}loss} \PYG{o}{+} \PYG{n}{batch\PYGZus{}loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+            \PYG{n}{pred\PYGZus{}max} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{argmax}\PYG{p}{(}\PYG{n}{y\PYGZus{}batch\PYGZus{}pred}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{n}{batch\PYGZus{}acc} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{pred\PYGZus{}max} \PYG{o}{==} \PYG{n}{labels}\PYG{p}{)}
+            \PYG{n}{test\PYGZus{}acc} \PYG{o}{=} \PYG{n}{test\PYGZus{}acc} \PYG{o}{+} \PYG{n}{batch\PYGZus{}acc}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+        \PYG{n}{test\PYGZus{}loss} \PYG{o}{=} \PYG{n}{test\PYGZus{}loss} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{loader}\PYG{p}{)}
+        \PYG{n}{test\PYGZus{}acc} \PYG{o}{=} \PYG{n}{test\PYGZus{}acc} \PYG{o}{/} \PYG{p}{(}\PYG{n}{batch\PYGZus{}size} \PYG{o}{*} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{loader}\PYG{p}{))}
+        \PYG{k}{return} \PYG{n}{test\PYGZus{}loss}\PYG{p}{,} \PYG{n}{test\PYGZus{}acc}
+    
+\PYG{n}{test\PYGZus{}loss}\PYG{p}{,} \PYG{n}{test\PYGZus{}acc} \PYG{o}{=} \PYG{n}{evaluate}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{test\PYGZus{}loader}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Test Accuracy: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{test\PYGZus{}acc}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\end{Verbatim}
